@@ -1,0 +1,7 @@
+﻿.main-body {
+    min-height: calc(100vh - 120px);
+}
+
+.footer {
+    height: 40px;
+}
