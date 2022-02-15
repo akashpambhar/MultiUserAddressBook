@@ -14,14 +14,20 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
+            #region Check Session UserID and Load Controls
+
             if (Session["UserID"] != null)
             {
                 FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
+
+            #endregion
         }
     }
     private void FillCountryGridView(Int32 UserID)
     {
+        #region Get All Countries By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -37,10 +43,14 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
         gvCountryList.DataBind();
 
         objConnection.Close();
+
+        #endregion
     }
 
     protected void gvCountryList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
+        #region Handle Delete Action from GridView
+
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
@@ -49,9 +59,13 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
                 FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
         }
+
+        #endregion
     }
     private void DeleteRecord(Int32 CountryID)
     {
+        #region Delete Country By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -72,5 +86,7 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
         {
             objConnection.Close();
         }
+
+        #endregion
     }
 }

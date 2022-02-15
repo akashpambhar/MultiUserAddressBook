@@ -14,14 +14,20 @@ public partial class MasterPanel_Contact_ContactList : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
+            #region Check Session UserID and Load Controls
+
             if (Session["UserID"] != null)
             {
                 FillContactGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
+
+            #endregion
         }
     }
     private void FillContactGridView(Int32 UserID)
     {
+        #region Get All Contacts By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -36,10 +42,14 @@ public partial class MasterPanel_Contact_ContactList : System.Web.UI.Page
         gvContactList.DataSource = objSDR;
         gvContactList.DataBind();
 
-        objConnection.Close();
+        objConnection.Close(); 
+
+        #endregion
     }
     protected void gvContactList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
+        #region Handle Delete Action from GridView
+
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
@@ -48,9 +58,13 @@ public partial class MasterPanel_Contact_ContactList : System.Web.UI.Page
                 FillContactGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
         }
+
+        #endregion
     }
     private void DeleteRecord(Int32 ContactID)
     {
+        #region Delete Contact By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -70,6 +84,8 @@ public partial class MasterPanel_Contact_ContactList : System.Web.UI.Page
         finally
         {
             objConnection.Close();
-        }
+        } 
+
+        #endregion
     }
 }

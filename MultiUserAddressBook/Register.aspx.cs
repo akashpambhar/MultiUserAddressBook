@@ -13,7 +13,10 @@ public partial class Register : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-
+        if (!Page.IsPostBack)
+        {
+            txtFullName.Focus();
+        }
     }
     protected void btnRegister_Click(object sender, EventArgs e)
     {
@@ -25,6 +28,8 @@ public partial class Register : System.Web.UI.Page
             SqlCommand objCommand = objConnection.CreateCommand();
             objCommand.CommandType = CommandType.StoredProcedure;
 
+            #region Parameters to pass
+
             objCommand.Parameters.AddWithValue("@UserName", DBNullOrStringValue(txtUserName.Text.Trim()));
             objCommand.Parameters.AddWithValue("@Password", DBNullOrStringValue(txtPassword.Text.Trim()));
             objCommand.Parameters.AddWithValue("@FullName", DBNullOrStringValue(txtFullName.Text.Trim()));
@@ -34,6 +39,8 @@ public partial class Register : System.Web.UI.Page
             objCommand.Parameters.AddWithValue("@FacebookID", DBNullOrStringValue(txtFacebookID.Text.Trim()));
             objCommand.Parameters.AddWithValue("@BirthDate", DBNullOrStringValue(txtBirthDate.Text.Trim()));
 
+            #region Validate Photo and Set as Parameter
+
             String strUserPhotoPath = MakePhotoPath();
             if (strUserPhotoPath == "Please upload file of size less than 1 MB" || strUserPhotoPath == "Please select a jpg, jpeg or png file")
             {
@@ -42,7 +49,12 @@ public partial class Register : System.Web.UI.Page
             }
 
             objCommand.Parameters.AddWithValue("@PhotoPath", DBNullOrStringValue(strUserPhotoPath));
+
+            #endregion
+
             objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+
+            #endregion
 
             objCommand.CommandText = "PR_UserMaster_Insert";
 
@@ -50,6 +62,8 @@ public partial class Register : System.Web.UI.Page
         }
         catch (SqlException sqlEx)
         {
+            #region Set Error Message
+
             if (sqlEx.Number == 2627)
             {
                 lblErrorMessage.Text = "UserName already in use. Please enter another";
@@ -58,6 +72,12 @@ public partial class Register : System.Web.UI.Page
                 objConnection.Close();
                 return;
             }
+            else
+            {
+                lblErrorMessage.Text = sqlEx.Message.ToString();
+            } 
+
+            #endregion
         }
         finally
         {
@@ -76,6 +96,8 @@ public partial class Register : System.Web.UI.Page
     }
     private String MakePhotoPath()
     {
+        #region Perform Photo Validation and Return PhotoPath
+
         if (fuUserPic.HasFile)
         {
             String fileExt = System.IO.Path.GetExtension(fuUserPic.FileName);
@@ -104,6 +126,8 @@ public partial class Register : System.Web.UI.Page
                 return "Please select a jpg, jpeg or png file";
             }
         }
-        return "";
+        return ""; 
+
+        #endregion
     }
 }

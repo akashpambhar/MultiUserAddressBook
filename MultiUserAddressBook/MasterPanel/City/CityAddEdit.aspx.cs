@@ -14,6 +14,8 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
+            #region Check Session UserID and Load Controls
+
             if (Session["UserID"] != null)
             {
                 FillCountryDDL(Convert.ToInt32(Session["UserID"].ToString()));
@@ -23,10 +25,14 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
                     FillStateDDL(Convert.ToInt32(Session["UserID"].ToString()));
                 }
             }
+
+            #endregion
         }
     }
     private void FillCountryDDL(Int32 UserID)
     {
+        #region Get All Countries By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -45,10 +51,14 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         objConnection.Close();
 
+        #endregion
+
         ddlCountry.Items.Insert(0, new ListItem("Select Country...", "-1"));
     }
     private void FillStateDDL(Int32 UserID)
     {
+        #region Get All States By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -67,6 +77,8 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         objConnection.Close();
 
+        #endregion
+
         ddlState.Items.Insert(0, new ListItem("Select State...", "-1"));
     }
     protected void ddlCountry_SelectedIndexChanged(object sender, EventArgs e)
@@ -78,25 +90,59 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
     }
     protected void btnSave_Click(object sender, EventArgs e)
     {
+        #region Server Side Validation
+
+        String strErrorMessage = "";
+
+        if (txtCityName.Text.Trim() == "")
+        {
+            strErrorMessage += "Enter City Name<br/>";
+        }
+        if (ddlCountry.SelectedIndex == 0)
+        {
+            strErrorMessage += "Select Country<br/>";
+        }
+        if (ddlState.SelectedIndex == 0)
+        {
+            strErrorMessage += "Select State<br/>";
+        }
+        if (strErrorMessage.Trim() != "")
+        {
+            lblErrorMessage.Text = strErrorMessage;
+            return;
+        }
+
+        #endregion Server Side Validation
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
+            #region Open Connection and Set up Command
+
             objConnection.Open();
 
             SqlCommand objCommand = objConnection.CreateCommand();
             objCommand.CommandType = CommandType.StoredProcedure;
+
+            #endregion
+
+            #region Common Parameters to pass
 
             objCommand.Parameters.AddWithValue("@CityName", DBNullOrStringValue(txtCityName.Text.Trim()));
             objCommand.Parameters.AddWithValue("@Pincode", DBNullOrStringValue(txtPincode.Text.Trim()));
             objCommand.Parameters.AddWithValue("@STDCode", DBNullOrStringValue(txtSTDCode.Text.Trim()));
             objCommand.Parameters.AddWithValue("@StateID", DBNullOrStringValue(ddlState.SelectedValue));
 
+            #endregion
+
+            #region Check and Perform Insert or Update City
+
             if (Page.RouteData.Values["CityID"] == null)
             {
                 objCommand.CommandText = "PR_City_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Convert.ToInt32(Session["UserID"].ToString())));
+                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Session["UserID"].ToString()));
                 }
                 objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
@@ -111,20 +157,32 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
             objCommand.ExecuteNonQuery();
 
+            #endregion
+
             lblErrorMessage.Text = "Data recorded successfully!";
         }
         catch (SqlException sqlEx)
         {
+            #region Set Error Message
+
             if (sqlEx.Number == 2627)
             {
                 lblErrorMessage.Text = "You have already created a City with same name in same State";
                 clearFields();
             }
+            else
+            {
+                lblErrorMessage.Text = sqlEx.Message.ToString();
+            }
+
+            #endregion
         }
         finally
         {
             objConnection.Close();
         }
+
+        #region Clear Fields or Redirect
 
         if (Page.RouteData.Values["CityID"] == null)
         {
@@ -134,6 +192,8 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         {
             Response.Redirect("~/AB/AdminPanel/City");
         }
+
+        #endregion
     }
     private Object DBNullOrStringValue(String val)
     {
@@ -143,15 +203,25 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         }
         return val;
     }
-    private String DBNullOrStringValue(Object val)
+    private String DBNullOrStringValue(TextBox element, Object val)
     {
-        if (val.Equals(DBNull.Value))
+        if (!val.Equals(DBNull.Value))
         {
-            return "";
+            element.Text = val.ToString();
+            return val.ToString();
         }
-        return val.ToString();
+        return "";
     }
 
+    private String DBNullOrStringValue(DropDownList element, Object val)
+    {
+        if (!val.Equals(DBNull.Value))
+        {
+            element.SelectedValue = val.ToString();
+            return val.ToString();
+        }
+        return "";
+    }
 
     private void clearFields()
     {
@@ -167,6 +237,8 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
     }
     private void LoadControls(String CityID)
     {
+        #region Get City By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -178,18 +250,24 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         SqlDataReader objSDR = objCommand.ExecuteReader();
 
+        #endregion
+
+        #region Set obtained values to controls and Close connection
+
         if (objSDR.HasRows)
         {
             while (objSDR.Read())
             {
-                txtCityName.Text = DBNullOrStringValue(objSDR["CityName"]);
-                txtPincode.Text = DBNullOrStringValue(objSDR["Pincode"]);
-                txtSTDCode.Text = DBNullOrStringValue(objSDR["STDCode"]);
-                ddlCountry.SelectedValue = DBNullOrStringValue(objSDR["CountryID"]);
-                ddlState.SelectedValue = DBNullOrStringValue(objSDR["StateID"]);
+                DBNullOrStringValue(txtCityName, objSDR["CityName"]);
+                DBNullOrStringValue(txtPincode, objSDR["Pincode"]);
+                DBNullOrStringValue(txtSTDCode, objSDR["STDCode"]);
+                DBNullOrStringValue(ddlCountry, objSDR["CountryID"]);
+                DBNullOrStringValue(ddlState, objSDR["StateID"]);
             }
         }
 
         objConnection.Close();
+
+        #endregion
     }
 }

@@ -14,14 +14,20 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
+            #region Check Session UserID and Load Controls
+
             if (Session["UserID"] != null)
             {
                 FillStateGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
+
+            #endregion
         }
     }
     private void FillStateGridView(Int32 UserID)
     {
+        #region Get All States By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -36,10 +42,14 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
         gvStateList.DataSource = objSDR;
         gvStateList.DataBind();
 
-        objConnection.Close();
+        objConnection.Close(); 
+
+        #endregion
     }
     protected void gvStateList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
+        #region Handle Delete Action from GridView
+
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
@@ -47,10 +57,14 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
             {
                 FillStateGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
-        }
+        } 
+
+        #endregion
     }
     private void DeleteRecord(Int32 StateID)
     {
+        #region Delete State By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -70,6 +84,8 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
         finally
         {
             objConnection.Close();
-        }
+        } 
+
+        #endregion
     }
 }

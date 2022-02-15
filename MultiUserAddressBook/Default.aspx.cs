@@ -19,6 +19,8 @@ public partial class _Default : System.Web.UI.Page
     }
     protected void btnLogin_Click(object sender, EventArgs e)
     {
+        #region Get User By UserName and Password
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -27,7 +29,7 @@ public partial class _Default : System.Web.UI.Page
         objCommand.CommandText = "PR_UserMaster_SelectByUserNamePassword";
 
         objCommand.Parameters.AddWithValue("@UserName", txtUserName.Text.Trim());
-        objCommand.Parameters.AddWithValue("@Password", txtPassword.Text.Trim());        
+        objCommand.Parameters.AddWithValue("@Password", txtPassword.Text.Trim());
 
         SqlDataReader objSDR = objCommand.ExecuteReader();
 
@@ -35,6 +37,10 @@ public partial class _Default : System.Web.UI.Page
         dtUser.Load(objSDR);
 
         objConnection.Close();
+
+        #endregion
+
+        #region Validate User
 
         if (dtUser != null && dtUser.Rows.Count > 0)
         {
@@ -63,5 +69,7 @@ public partial class _Default : System.Web.UI.Page
             txtPassword.Text = "";
             txtUserName.Focus();
         }
+
+        #endregion
     }
 }

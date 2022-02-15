@@ -14,32 +14,65 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
-            if (Page.RouteData.Values["CountryID"] != null)
+            #region Check Session UserID and Load Controls
+
+            if (Session["UserID"] != null)
             {
-                LoadControls();
+                if (Page.RouteData.Values["CountryID"] != null)
+                {
+                    LoadControls();
+                }
             }
+
+            #endregion
         }
     }
     protected void btnSave_Click(object sender, EventArgs e)
     {
+        #region Server Side Validation
+
+        String strErrorMessage = "";
+
+        if (txtCountryName.Text.Trim() == "")
+        {
+            strErrorMessage += "Enter Country Name <br/>";
+        }
+
+        if (strErrorMessage != "")
+        {
+            lblErrorMessage.Text = strErrorMessage;
+            return;
+        }
+
+        #endregion Server Side Validation
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
+            #region Open Connection and Set up Command
+
             objConnection.Open();
 
             SqlCommand objCommand = objConnection.CreateCommand();
             objCommand.CommandType = CommandType.StoredProcedure;
 
+            #endregion
+
+            #region Common Parameters to pass
+
             objCommand.Parameters.AddWithValue("@CountryName", DBNullOrStringValue(txtCountryName.Text.Trim()));
             objCommand.Parameters.AddWithValue("@CountryCode", DBNullOrStringValue(txtCountryCode.Text.Trim()));
 
+            #endregion
+
+            #region Check and Perform Insert or Update Country
 
             if (Page.RouteData.Values["CountryID"] == null)
             {
                 objCommand.CommandText = "PR_Country_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Convert.ToInt32(Session["UserID"].ToString())));
+                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Session["UserID"].ToString()));
                 }
                 objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
@@ -49,23 +82,33 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
                 objCommand.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
             }
 
-
             objCommand.ExecuteNonQuery();
+
+            #endregion
 
             lblErrorMessage.Text = "Data recorded successfully!";
         }
         catch (SqlException sqlEx)
         {
+            #region Set Error Message
+
             if (sqlEx.Number == 2627)
             {
                 lblErrorMessage.Text = "You have already created a Country with same name";
                 clearFields();
             }
+            else
+            {
+                lblErrorMessage.Text = sqlEx.Message.ToString();
+            }
+            #endregion
         }
         finally
         {
             objConnection.Close();
         }
+
+        #region Clear Fields or Redirect
 
         if (Page.RouteData.Values["CountryID"] == null)
         {
@@ -75,6 +118,8 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
         {
             Response.Redirect("~/AB/AdminPanel/Country");
         }
+
+        #endregion
     }
     private Object DBNullOrStringValue(String val)
     {
@@ -84,13 +129,14 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
         }
         return val;
     }
-    private String DBNullOrStringValue(Object val)
+    private String DBNullOrStringValue(TextBox element, Object val)
     {
-        if (val.Equals(DBNull.Value))
+        if (!val.Equals(DBNull.Value))
         {
-            return "";
+            element.Text = val.ToString();
+            return val.ToString();
         }
-        return val.ToString();
+        return "";
     }
 
     private void clearFields()
@@ -104,6 +150,8 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
     }
     private void LoadControls()
     {
+        #region Get Country By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -115,15 +163,21 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
         SqlDataReader objSDR = objCommand.ExecuteReader();
 
+        #endregion
+
+        #region Set obtained values to controls and Close connection
+
         if (objSDR.HasRows)
         {
             while (objSDR.Read())
             {
-                txtCountryName.Text = DBNullOrStringValue(objSDR["CountryName"]);
-                txtCountryCode.Text = DBNullOrStringValue(objSDR["CountryCode"]);
+                DBNullOrStringValue(txtCountryName, objSDR["CountryName"]);
+                DBNullOrStringValue(txtCountryCode, objSDR["CountryCode"]);
             }
         }
 
         objConnection.Close();
+
+        #endregion
     }
 }

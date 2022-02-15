@@ -14,14 +14,20 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
     {
         if (!Page.IsPostBack)
         {
+            #region Check Session UserID and Load Controls
+
             if (Session["UserID"] != null)
             {
                 FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
-            }
+            } 
+
+            #endregion
         }
     }
     private void FillCityGridView(Int32 UserID)
     {
+        #region Get All Cities By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -36,10 +42,14 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
         gvCityList.DataSource = objSDR;
         gvCityList.DataBind();
 
-        objConnection.Close();
+        objConnection.Close(); 
+
+        #endregion
     }
     protected void gvCityList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
+        #region Handle Delete Action from GridView
+
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
@@ -47,10 +57,14 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
             {
                 FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
-        }
+        } 
+
+        #endregion
     }
     private void DeleteRecord(Int32 CityID)
     {
+        #region Delete City By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -70,6 +84,8 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
         finally
         {
             objConnection.Close();
-        }
+        } 
+
+        #endregion
     }
 }

@@ -14,14 +14,20 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
     {
         if (!Page.IsPostBack)
         {
+            #region Check Session UserID and Load Controls
+
             if (Session["UserID"] != null)
             {
                 FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
+
+            #endregion
         }
     }
     private void FillContactCategoryGridView(Int32 UserID)
     {
+        #region Get All Contact Categories By UserID
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         objConnection.Open();
 
@@ -36,10 +42,14 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
         gvContactCategoryList.DataSource = objSDR;
         gvContactCategoryList.DataBind();
 
-        objConnection.Close();
+        objConnection.Close(); 
+
+        #endregion
     }
     protected void gvContactCategoryList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
+        #region Handle Delete Action from GridView
+
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
@@ -47,10 +57,14 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
             {
                 FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
-        }
+        } 
+
+        #endregion
     }
     private void DeleteRecord(Int32 ContactCategoryID)
     {
+        #region Delete ContactCategory By PK
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -70,6 +84,8 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
         finally
         {
             objConnection.Close();
-        }
+        } 
+
+        #endregion
     }
 }
