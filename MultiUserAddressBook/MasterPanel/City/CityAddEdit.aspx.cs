@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -114,6 +115,36 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         #endregion Server Side Validation
 
+        #region Local Variables
+
+        SqlString strCityName = SqlString.Null;
+        SqlString strPincode = SqlString.Null;
+        SqlString strSTDCode = SqlString.Null;
+        SqlInt32 strStateID = SqlInt32.Null;
+
+        #endregion Local Variables
+
+        #region Gather Information
+
+        if (txtCityName.Text.Trim() != "")
+        {
+            strCityName = txtCityName.Text.Trim();
+        }
+        if (txtPincode.Text.Trim() != "")
+        {
+            strPincode = txtPincode.Text.Trim();
+        }
+        if (txtSTDCode.Text.Trim() != "")
+        {
+            strSTDCode = txtSTDCode.Text.Trim();
+        }
+        if (ddlState.SelectedIndex > 0)
+        {
+            strStateID = Convert.ToInt32(ddlState.SelectedValue);
+        }
+
+        #endregion Gather Information
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -128,31 +159,31 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
             #region Common Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@CityName", DBNullOrStringValue(txtCityName.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@Pincode", DBNullOrStringValue(txtPincode.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@STDCode", DBNullOrStringValue(txtSTDCode.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@StateID", DBNullOrStringValue(ddlState.SelectedValue));
+            objCommand.Parameters.AddWithValue("@CityName", strCityName);
+            objCommand.Parameters.AddWithValue("@Pincode", strPincode);
+            objCommand.Parameters.AddWithValue("@STDCode", strSTDCode);
+            objCommand.Parameters.AddWithValue("@StateID", strSTDCode);
 
             #endregion
 
             #region Check and Perform Insert or Update City
 
-            if (Page.RouteData.Values["CityID"] == null)
-            {
-                objCommand.CommandText = "PR_City_Insert";
-                if (Session["UserID"] != null)
-                {
-                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Session["UserID"].ToString()));
-                }
-                objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
-            }
-            else
+            if (Page.RouteData.Values["CityID"] != null)
             {
                 objCommand.CommandText = "PR_City_UpdateByPK";
                 if (Page.RouteData.Values["CityID"] != null)
                 {
                     objCommand.Parameters.AddWithValue("@CityID", Page.RouteData.Values["CityID"]);
                 }
+            }
+            else
+            {
+                objCommand.CommandText = "PR_City_Insert";
+                if (Session["UserID"] != null)
+                {
+                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
+                }
+                objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
 
             objCommand.ExecuteNonQuery();
@@ -203,24 +234,20 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         }
         return val;
     }
-    private String DBNullOrStringValue(TextBox element, Object val)
+    private void DBNullOrStringValue(TextBox element, Object val)
     {
         if (!val.Equals(DBNull.Value))
         {
             element.Text = val.ToString();
-            return val.ToString();
         }
-        return "";
     }
 
-    private String DBNullOrStringValue(DropDownList element, Object val)
+    private void DBNullOrStringValue(DropDownList element, Object val)
     {
         if (!val.Equals(DBNull.Value))
         {
             element.SelectedValue = val.ToString();
-            return val.ToString();
         }
-        return "";
     }
 
     private void clearFields()
@@ -229,7 +256,7 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         txtPincode.Text = "";
         txtSTDCode.Text = "";
         ddlCountry.SelectedIndex = 0;
-        ddlState.SelectedValue = "-1";
+        ddlState.SelectedIndex = 0;
     }
     protected void btnCancel_Click(object sender, EventArgs e)
     {

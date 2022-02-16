@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -78,6 +79,26 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
 
         #endregion Server Side Validation
 
+        #region Local Variables
+        
+        SqlString strStateName = SqlString.Null;
+        SqlInt32 strCountryID = SqlInt32.Null;
+        
+        #endregion Local Variables
+
+        #region Gather Information
+
+        if (ddlCountry.SelectedIndex > 0)
+        {
+            strCountryID = Convert.ToInt32(ddlCountry.SelectedValue);
+        }
+        if (txtStateName.Text.Trim() != "")
+        {
+            strStateName = txtStateName.Text.Trim();
+        }
+
+        #endregion Gather Information
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -93,26 +114,26 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
 
             #region Common Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@StateName", DBNullOrStringValue(txtStateName.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@CountryID", DBNullOrStringValue(ddlCountry.SelectedValue));
+            objCommand.Parameters.AddWithValue("@StateName", strStateName);
+            objCommand.Parameters.AddWithValue("@CountryID", strCountryID);
 
             #endregion
 
             #region Check and Perform Insert or Update State
 
-            if (Page.RouteData.Values["StateID"] == null)
+            if (Page.RouteData.Values["StateID"] != null)
+            {
+                objCommand.CommandText = "PR_State_UpdateByPK";
+                objCommand.Parameters.AddWithValue("@StateID", Page.RouteData.Values["StateID"]);
+            }
+            else
             {
                 objCommand.CommandText = "PR_State_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Session["UserID"].ToString()));
+                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
                 objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
-            }
-            else
-            {
-                objCommand.CommandText = "PR_State_UpdateByPK";
-                objCommand.Parameters.AddWithValue("@StateID", Page.RouteData.Values["StateID"]);
             }
 
             objCommand.ExecuteNonQuery();
@@ -163,24 +184,20 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
         }
         return val;
     }
-    private String DBNullOrStringValue(TextBox element, Object val)
+    private void DBNullOrStringValue(TextBox element, Object val)
     {
         if (!val.Equals(DBNull.Value))
         {
             element.Text = val.ToString();
-            return val.ToString();
         }
-        return "";
     }
 
-    private String DBNullOrStringValue(DropDownList element, Object val)
+    private void DBNullOrStringValue(DropDownList element, Object val)
     {
         if (!val.Equals(DBNull.Value))
         {
             element.SelectedValue = val.ToString();
-            return val.ToString();
         }
-        return "";
     }
 
     private void clearFields()

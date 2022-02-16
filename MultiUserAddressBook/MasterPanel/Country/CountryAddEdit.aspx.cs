@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -46,6 +47,26 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
         #endregion Server Side Validation
 
+        #region Local Variables
+
+        SqlString strCountryName = SqlString.Null;
+        SqlString strCountryCode = SqlString.Null;
+
+        #endregion Local Variables
+
+        #region Gather Information
+
+        if (txtCountryName.Text.Trim() != "")
+        {
+            strCountryName = txtCountryName.Text.Trim();
+        }
+        if (txtCountryCode.Text.Trim() != "")
+        {
+            strCountryCode = txtCountryCode.Text.Trim();
+        }
+
+        #endregion
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -60,26 +81,26 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
             #region Common Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@CountryName", DBNullOrStringValue(txtCountryName.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@CountryCode", DBNullOrStringValue(txtCountryCode.Text.Trim()));
+            objCommand.Parameters.AddWithValue("@CountryName", strCountryName);
+            objCommand.Parameters.AddWithValue("@CountryCode", strCountryCode);
 
             #endregion
 
             #region Check and Perform Insert or Update Country
 
-            if (Page.RouteData.Values["CountryID"] == null)
+            if (Page.RouteData.Values["CountryID"] != null)
+            {
+                objCommand.CommandText = "PR_Country_UpdateByPK";
+                objCommand.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
+            }
+            else
             {
                 objCommand.CommandText = "PR_Country_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Session["UserID"].ToString()));
+                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
                 objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
-            }
-            else
-            {
-                objCommand.CommandText = "PR_Country_UpdateByPK";
-                objCommand.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
             }
 
             objCommand.ExecuteNonQuery();
@@ -129,14 +150,12 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
         }
         return val;
     }
-    private String DBNullOrStringValue(TextBox element, Object val)
+    private void DBNullOrStringValue(TextBox element, Object val)
     {
         if (!val.Equals(DBNull.Value))
         {
             element.Text = val.ToString();
-            return val.ToString();
         }
-        return "";
     }
 
     private void clearFields()

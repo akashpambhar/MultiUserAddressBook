@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -45,6 +46,21 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
 
         #endregion Server Side Validation
 
+        #region Local Variables
+        
+        SqlString strContactCategoryName = SqlString.Null;
+
+        #endregion Local Variables
+
+        #region Gather Information
+
+        if (txtContactCategoryName.Text.Trim() != "")
+        {
+            strContactCategoryName = txtContactCategoryName.Text.Trim();
+        }
+
+        #endregion Gather Information
+
         SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -59,25 +75,25 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
 
             #region Common parameters to pass
 
-            objCommand.Parameters.AddWithValue("@ContactCategoryName", DBNullOrStringValue(txtContactCategoryName.Text.Trim()));
+            objCommand.Parameters.AddWithValue("@ContactCategoryName", strContactCategoryName);
             
             #endregion            
 
             #region Check and Perform Insert or Update ContactCategory
 
-            if (Page.RouteData.Values["ContactCategoryID"] == null)
+            if (Page.RouteData.Values["ContactCategoryID"] != null)
+            {
+                objCommand.CommandText = "PR_ContactCategory_UpdateByPK";
+                objCommand.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
+            }
+            else
             {
                 objCommand.CommandText = "PR_ContactCategory_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", DBNullOrStringValue(Session["UserID"].ToString()));
+                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
                 objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
-            }
-            else
-            {
-                objCommand.CommandText = "PR_ContactCategory_UpdateByPK";
-                objCommand.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
             }
 
             objCommand.ExecuteNonQuery();
@@ -128,14 +144,12 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
         }
         return val;
     }
-    private String DBNullOrStringValue(TextBox element, Object val)
+    private void DBNullOrStringValue(TextBox element, Object val)
     {
         if (!val.Equals(DBNull.Value))
         {
             element.Text = val.ToString();
-            return val.ToString();
         }
-        return "";
     }
 
     private void clearFields()
