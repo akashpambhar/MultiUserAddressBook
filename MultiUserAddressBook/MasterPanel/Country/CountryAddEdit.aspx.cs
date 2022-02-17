@@ -67,22 +67,23 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
         #endregion
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
             #region Open Connection and Set up Command
 
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
 
             #endregion
 
             #region Common Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@CountryName", strCountryName);
-            objCommand.Parameters.AddWithValue("@CountryCode", strCountryCode);
+            objCmd.Parameters.AddWithValue("@CountryName", strCountryName);
+            objCmd.Parameters.AddWithValue("@CountryCode", strCountryCode);
 
             #endregion
 
@@ -90,20 +91,20 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
             if (Page.RouteData.Values["CountryID"] != null)
             {
-                objCommand.CommandText = "PR_Country_UpdateByPK";
-                objCommand.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
+                objCmd.CommandText = "PR_Country_UpdateByPK";
+                objCmd.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
             }
             else
             {
-                objCommand.CommandText = "PR_Country_Insert";
+                objCmd.CommandText = "PR_Country_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
+                    objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
-                objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+                objCmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
 
             #endregion
 
@@ -122,11 +123,13 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
             {
                 lblErrorMessage.Text = sqlEx.Message.ToString();
             }
+
             #endregion
         }
         finally
         {
-            objConnection.Close();
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
         }
 
         #region Clear Fields or Redirect
@@ -142,22 +145,6 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
         #endregion
     }
-    private Object DBNullOrStringValue(String val)
-    {
-        if (String.IsNullOrEmpty(val))
-        {
-            return DBNull.Value;
-        }
-        return val;
-    }
-    private void DBNullOrStringValue(TextBox element, Object val)
-    {
-        if (!val.Equals(DBNull.Value))
-        {
-            element.Text = val.ToString();
-        }
-    }
-
     private void clearFields()
     {
         txtCountryName.Text = "";
@@ -169,34 +156,52 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
     }
     private void LoadControls()
     {
-        #region Get Country By PK
-
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
-
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_Country_SelectByPK";
-
-        objCommand.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
-
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-
-        #endregion
-
-        #region Set obtained values to controls and Close connection
-
-        if (objSDR.HasRows)
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
         {
-            while (objSDR.Read())
+            #region Get Country By PK
+
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Country_SelectByPK";
+
+            objCmd.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+
+            #endregion
+
+            #region Set obtained values to controls
+
+            if (objSDR.HasRows)
             {
-                DBNullOrStringValue(txtCountryName, objSDR["CountryName"]);
-                DBNullOrStringValue(txtCountryCode, objSDR["CountryCode"]);
+                while (objSDR.Read())
+                {
+                    if (!objSDR["CountryName"].Equals(DBNull.Value))
+                    {
+                        txtCountryName.Text = objSDR["CountryName"].ToString();
+                    }
+                    if (!objSDR["CountryCode"].Equals(DBNull.Value))
+                    {
+                        txtCountryCode.Text = objSDR["CountryCode"].ToString();
+                    }
+                    break;
+                }
             }
+
+            #endregion
         }
-
-        objConnection.Close();
-
-        #endregion
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
 }

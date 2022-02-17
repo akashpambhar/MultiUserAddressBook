@@ -19,64 +19,86 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                FillCountryDDL(Convert.ToInt32(Session["UserID"].ToString()));
+                FillCountryDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
                 if (Page.RouteData.Values["CityID"] != null)
                 {
                     LoadControls(Page.RouteData.Values["CityID"].ToString());
-                    FillStateDDL(Convert.ToInt32(Session["UserID"].ToString()));
+                    FillStateDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
                 }
             }
 
             #endregion
         }
     }
-    private void FillCountryDDL(Int32 UserID)
+    private void FillCountryDropDownList(Int32 UserID)
     {
         #region Get All Countries By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_Country_SelectAllByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Country_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
 
-        ddlCountry.DataSource = objSDR;
-        ddlCountry.DataTextField = "CountryName";
-        ddlCountry.DataValueField = "CountryID";
-        ddlCountry.DataBind();
-
-        objConnection.Close();
+            ddlCountry.DataSource = objSDR;
+            ddlCountry.DataTextField = "CountryName";
+            ddlCountry.DataValueField = "CountryID";
+            ddlCountry.DataBind();
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
 
         ddlCountry.Items.Insert(0, new ListItem("Select Country...", "-1"));
     }
-    private void FillStateDDL(Int32 UserID)
+    private void FillStateDropDownList(Int32 UserID)
     {
         #region Get All States By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_State_SelectDropDownListByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_State_SelectDropDownListByUserID";
 
-        objCommand.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-        ddlState.DataSource = objSDR;
-        ddlState.DataTextField = "StateName";
-        ddlState.DataValueField = "StateID";
-        ddlState.DataBind();
-
-        objConnection.Close();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+            ddlState.DataSource = objSDR;
+            ddlState.DataTextField = "StateName";
+            ddlState.DataValueField = "StateID";
+            ddlState.DataBind();
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
 
@@ -86,7 +108,7 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
     {
         if (Session["UserID"] != null)
         {
-            FillStateDDL(Convert.ToInt32(Session["UserID"].ToString()));
+            FillStateDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
         }
     }
     protected void btnSave_Click(object sender, EventArgs e)
@@ -145,24 +167,25 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         #endregion Gather Information
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
             #region Open Connection and Set up Command
 
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
 
             #endregion
 
             #region Common Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@CityName", strCityName);
-            objCommand.Parameters.AddWithValue("@Pincode", strPincode);
-            objCommand.Parameters.AddWithValue("@STDCode", strSTDCode);
-            objCommand.Parameters.AddWithValue("@StateID", strSTDCode);
+            objCmd.Parameters.AddWithValue("@CityName", strCityName);
+            objCmd.Parameters.AddWithValue("@Pincode", strPincode);
+            objCmd.Parameters.AddWithValue("@STDCode", strSTDCode);
+            objCmd.Parameters.AddWithValue("@StateID", strStateID);
 
             #endregion
 
@@ -170,23 +193,23 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
             if (Page.RouteData.Values["CityID"] != null)
             {
-                objCommand.CommandText = "PR_City_UpdateByPK";
+                objCmd.CommandText = "PR_City_UpdateByPK";
                 if (Page.RouteData.Values["CityID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@CityID", Page.RouteData.Values["CityID"]);
+                    objCmd.Parameters.AddWithValue("@CityID", Page.RouteData.Values["CityID"]);
                 }
             }
             else
             {
-                objCommand.CommandText = "PR_City_Insert";
+                objCmd.CommandText = "PR_City_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
+                    objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
-                objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+                objCmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
 
             #endregion
 
@@ -210,7 +233,8 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         }
         finally
         {
-            objConnection.Close();
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
         }
 
         #region Clear Fields or Redirect
@@ -226,30 +250,6 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         #endregion
     }
-    private Object DBNullOrStringValue(String val)
-    {
-        if (String.IsNullOrEmpty(val))
-        {
-            return DBNull.Value;
-        }
-        return val;
-    }
-    private void DBNullOrStringValue(TextBox element, Object val)
-    {
-        if (!val.Equals(DBNull.Value))
-        {
-            element.Text = val.ToString();
-        }
-    }
-
-    private void DBNullOrStringValue(DropDownList element, Object val)
-    {
-        if (!val.Equals(DBNull.Value))
-        {
-            element.SelectedValue = val.ToString();
-        }
-    }
-
     private void clearFields()
     {
         txtCityName.Text = "";
@@ -264,37 +264,64 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
     }
     private void LoadControls(String CityID)
     {
-        #region Get City By PK
-
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
-
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_City_SelectByPK";
-
-        objCommand.Parameters.AddWithValue("@CityID", CityID);
-
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-
-        #endregion
-
-        #region Set obtained values to controls and Close connection
-
-        if (objSDR.HasRows)
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
         {
-            while (objSDR.Read())
+            #region Get City By PK
+
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_City_SelectByPK";
+
+            objCmd.Parameters.AddWithValue("@CityID", CityID);
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+
+            #endregion
+
+            #region Set obtained values to controls
+
+            if (objSDR.HasRows)
             {
-                DBNullOrStringValue(txtCityName, objSDR["CityName"]);
-                DBNullOrStringValue(txtPincode, objSDR["Pincode"]);
-                DBNullOrStringValue(txtSTDCode, objSDR["STDCode"]);
-                DBNullOrStringValue(ddlCountry, objSDR["CountryID"]);
-                DBNullOrStringValue(ddlState, objSDR["StateID"]);
+                while (objSDR.Read())
+                {
+                    if (!objSDR["CityName"].Equals(DBNull.Value))
+                    {
+                        txtCityName.Text = objSDR["CityName"].ToString();
+                    }
+                    if (!objSDR["Pincode"].Equals(DBNull.Value))
+                    {
+                        txtPincode.Text = objSDR["Pincode"].ToString();
+                    }
+                    if (!objSDR["STDCode"].Equals(DBNull.Value))
+                    {
+                        txtSTDCode.Text = objSDR["STDCode"].ToString();
+                    }
+                    if (!objSDR["CountryID"].Equals(DBNull.Value))
+                    {
+                        ddlCountry.SelectedValue = objSDR["CountryID"].ToString();
+                    }
+                    if (!objSDR["StateID"].Equals(DBNull.Value))
+                    {
+                        ddlState.SelectedValue = objSDR["StateID"].ToString();
+                    }
+                    break;
+                }
             }
+
+            #endregion
         }
-
-        objConnection.Close();
-
-        #endregion
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
 }

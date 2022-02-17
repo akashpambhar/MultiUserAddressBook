@@ -28,21 +28,32 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
     {
         #region Get All Countries By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_Country_SelectAllByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Country_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
 
-        gvCountryList.DataSource = objSDR;
-        gvCountryList.DataBind();
-
-        objConnection.Close();
+            gvCountryList.DataSource = objSDR;
+            gvCountryList.DataBind();
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
     }
@@ -54,10 +65,7 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
-            if (Session["UserID"] != null)
-            {
-                FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
-            }
+            FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
         }
 
         #endregion
@@ -66,25 +74,27 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
     {
         #region Delete Country By PK
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
-            objCommand.CommandText = "PR_Country_DeleteByPK";
-            objCommand.Parameters.AddWithValue("@CountryID", CountryID);
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Country_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@CountryID", CountryID);
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
         }
         catch (Exception ex)
         {
-
+            lblErrorMessage.Text = ex.Message.ToString();
         }
         finally
         {
-            objConnection.Close();
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
         }
 
         #endregion

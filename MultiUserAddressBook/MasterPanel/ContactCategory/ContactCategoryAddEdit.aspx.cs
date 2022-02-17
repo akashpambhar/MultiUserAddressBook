@@ -47,7 +47,7 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
         #endregion Server Side Validation
 
         #region Local Variables
-        
+
         SqlString strContactCategoryName = SqlString.Null;
 
         #endregion Local Variables
@@ -61,43 +61,44 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
 
         #endregion Gather Information
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
             #region Open Connection and Set up Command
 
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure; 
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
 
             #endregion
 
             #region Common parameters to pass
 
-            objCommand.Parameters.AddWithValue("@ContactCategoryName", strContactCategoryName);
-            
-            #endregion            
+            objCmd.Parameters.AddWithValue("@ContactCategoryName", strContactCategoryName);
+
+            #endregion
 
             #region Check and Perform Insert or Update ContactCategory
 
             if (Page.RouteData.Values["ContactCategoryID"] != null)
             {
-                objCommand.CommandText = "PR_ContactCategory_UpdateByPK";
-                objCommand.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
+                objCmd.CommandText = "PR_ContactCategory_UpdateByPK";
+                objCmd.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
             }
             else
             {
-                objCommand.CommandText = "PR_ContactCategory_Insert";
+                objCmd.CommandText = "PR_ContactCategory_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
+                    objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
-                objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+                objCmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
 
-            objCommand.ExecuteNonQuery();
-            
+            objCmd.ExecuteNonQuery();
+
             #endregion
 
             lblErrorMessage.Text = "Data recorded successfully!";
@@ -114,13 +115,14 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
             else
             {
                 lblErrorMessage.Text = sqlEx.Message.ToString();
-            } 
+            }
 
             #endregion
         }
         finally
         {
-            objConnection.Close();
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
         }
 
         #region Clear Fields or Redirect
@@ -132,26 +134,10 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
         else
         {
             Response.Redirect("~/AB/AdminPanel/ContactCategory");
-        } 
+        }
 
         #endregion
     }
-    private Object DBNullOrStringValue(String val)
-    {
-        if (String.IsNullOrEmpty(val))
-        {
-            return DBNull.Value;
-        }
-        return val;
-    }
-    private void DBNullOrStringValue(TextBox element, Object val)
-    {
-        if (!val.Equals(DBNull.Value))
-        {
-            element.Text = val.ToString();
-        }
-    }
-
     private void clearFields()
     {
         txtContactCategoryName.Text = "";
@@ -162,33 +148,48 @@ public partial class MasterPanel_ContactCategory_ContactCategoryAddEdit : System
     }
     private void LoadControls()
     {
-        #region Get ContactCategory By PK
-
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
-
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_ContactCategory_SelectByPK";
-
-        objCommand.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
-
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-        
-        #endregion
-
-        #region Set obtained values to controls and Close connection
-
-        if (objSDR.HasRows)
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
         {
-            while (objSDR.Read())
-            {
-                DBNullOrStringValue(txtContactCategoryName, objSDR["ContactCategoryName"]);
-            }
-        }
+            #region Get ContactCategory By PK
 
-        objConnection.Close();
-        
-        #endregion
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_ContactCategory_SelectByPK";
+
+            objCmd.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+
+            #endregion
+
+            #region Set obtained values to controls
+
+            if (objSDR.HasRows)
+            {
+                while (objSDR.Read())
+                {
+                    if (!objSDR["ContactCategoryName"].Equals(DBNull.Value))
+                    {
+                        txtContactCategoryName.Text = objSDR["ContactCategoryName"].ToString();
+                    }
+                    break;
+                }
+            }
+
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
 }

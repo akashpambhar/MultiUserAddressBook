@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -20,45 +21,117 @@ public partial class Register : System.Web.UI.Page
     }
     protected void btnRegister_Click(object sender, EventArgs e)
     {
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        #region Server Side Validation
+
+        String strErrorMessage = "";
+
+        if (txtUserName.Text.Trim() == "")
+        {
+            strErrorMessage += "Enter User Name <br/>";
+        }
+        if (txtPassword.Text.Trim() == "")
+        {
+            strErrorMessage += "Enter Password <br/>";
+        }
+        String strUserPhotoPath = MakePhotoPath();
+        if (strUserPhotoPath == "Please upload file of size less than 1 MB" || strUserPhotoPath == "Please select a jpg, jpeg or png file")
+        {
+            strErrorMessage += strUserPhotoPath + " <br/>";
+        }
+        if (strErrorMessage != "")
+        {
+            lblErrorMessage.Text = strErrorMessage;
+            return;
+        }
+
+        #endregion Server Side Validation
+
+        #region Local Variables
+
+        SqlString strUserName = SqlString.Null;
+        SqlString strPassword = SqlString.Null;
+        SqlString strFullName = SqlString.Null;
+        SqlString strAddress = SqlString.Null;
+        SqlString strMobileNo = SqlString.Null;
+        SqlString strEmail = SqlString.Null;
+        SqlString strFacebookID = SqlString.Null;
+        SqlString strBirthDate = SqlString.Null;
+        SqlString strPhotoPath = SqlString.Null;
+
+        #endregion Local Variables
+
+        #region Gather Information
+
+        if (txtUserName.Text.Trim() != "")
+        {
+            strUserName = txtUserName.Text.Trim();
+        }
+        if (txtPassword.Text.Trim() != "")
+        {
+            strPassword = txtPassword.Text.Trim();
+        }
+        if (txtFullName.Text.Trim() != "")
+        {
+            strFullName = txtFullName.Text.Trim();
+        }
+        if (txtAddress.Text.Trim() != "")
+        {
+            strAddress = txtAddress.Text.Trim();
+        }
+        if (txtMobileNo.Text.Trim() != "")
+        {
+            strMobileNo = txtMobileNo.Text.Trim();
+        }
+        if (txtEmail.Text.Trim() != "")
+        {
+            strEmail = txtEmail.Text.Trim();
+        }
+        if (txtFacebookID.Text.Trim() != "")
+        {
+            strFacebookID = txtFacebookID.Text.Trim();
+        }
+        if (txtBirthDate.Text.Trim() != "")
+        {
+            strBirthDate = txtBirthDate.Text.Trim();
+        }
+        if (strUserPhotoPath.Trim() != "")
+        {
+            strPhotoPath = strUserPhotoPath.Trim();
+        }
+
+        #endregion Gather Information
+
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            objConnection.Open();
+            #region Open Connection and Set up Command
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+
+            #endregion
 
             #region Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@UserName", DBNullOrStringValue(txtUserName.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@Password", DBNullOrStringValue(txtPassword.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@FullName", DBNullOrStringValue(txtFullName.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@Address", DBNullOrStringValue(txtAddress.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@MobileNo", DBNullOrStringValue(txtMobileNo.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@EmailID", DBNullOrStringValue(txtEmail.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@FacebookID", DBNullOrStringValue(txtFacebookID.Text.Trim()));
-            objCommand.Parameters.AddWithValue("@BirthDate", DBNullOrStringValue(txtBirthDate.Text.Trim()));
-
-            #region Validate Photo and Set as Parameter
-
-            String strUserPhotoPath = MakePhotoPath();
-            if (strUserPhotoPath == "Please upload file of size less than 1 MB" || strUserPhotoPath == "Please select a jpg, jpeg or png file")
-            {
-                lblErrorMessage.Text = strUserPhotoPath;
-                return;
-            }
-
-            objCommand.Parameters.AddWithValue("@PhotoPath", DBNullOrStringValue(strUserPhotoPath));
+            objCmd.Parameters.AddWithValue("@UserName", strUserName);
+            objCmd.Parameters.AddWithValue("@Password", strPassword);
+            objCmd.Parameters.AddWithValue("@FullName", strFullName);
+            objCmd.Parameters.AddWithValue("@Address", strAddress);
+            objCmd.Parameters.AddWithValue("@MobileNo", strMobileNo);
+            objCmd.Parameters.AddWithValue("@EmailID", strEmail);
+            objCmd.Parameters.AddWithValue("@FacebookID", strFacebookID);
+            objCmd.Parameters.AddWithValue("@BirthDate", strBirthDate);
+            objCmd.Parameters.AddWithValue("@PhotoPath", strPhotoPath);
+            objCmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
 
             #endregion
 
-            objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+            objCmd.CommandText = "PR_UserMaster_Insert";
 
-            #endregion
-
-            objCommand.CommandText = "PR_UserMaster_Insert";
-
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
         }
         catch (SqlException sqlEx)
         {
@@ -69,30 +142,23 @@ public partial class Register : System.Web.UI.Page
                 lblErrorMessage.Text = "UserName already in use. Please enter another";
                 txtUserName.Text = "";
                 txtUserName.Focus();
-                objConnection.Close();
+                objConn.Close();
                 return;
             }
             else
             {
                 lblErrorMessage.Text = sqlEx.Message.ToString();
-            } 
+            }
 
             #endregion
         }
         finally
         {
-            objConnection.Close();
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
         }
 
         Response.Redirect("~/AB/AdminPanel/Login");
-    }
-    private Object DBNullOrStringValue(String val)
-    {
-        if (String.IsNullOrEmpty(val))
-        {
-            return DBNull.Value;
-        }
-        return val;
     }
     private String MakePhotoPath()
     {
@@ -126,7 +192,7 @@ public partial class Register : System.Web.UI.Page
                 return "Please select a jpg, jpeg or png file";
             }
         }
-        return ""; 
+        return "";
 
         #endregion
     }

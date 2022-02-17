@@ -9,6 +9,9 @@
                 <h1>Contact Category List</h1>
             </div>
         </div>
+        <div class="my-3">
+            <asp:Label ID="lblErrorMessage" runat="server" CssClass="col-md-12 mx-auto alert-light rounded" Text=""></asp:Label>
+        </div>
         <div class="row">
             <div class="col-md-12 text-end">
                 <asp:HyperLink ID="hlAddContactCategory" runat="server" Text="Add Contact Category" NavigateUrl="~/AB/AdminPanel/ContactCategory/Add" CssClass="btn btn-primary" />

@@ -28,21 +28,32 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
     {
         #region Get All States By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_State_SelectAllByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_State_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
 
-        gvStateList.DataSource = objSDR;
-        gvStateList.DataBind();
-
-        objConnection.Close(); 
+            gvStateList.DataSource = objSDR;
+            gvStateList.DataBind();
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
     }
@@ -57,7 +68,7 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
             {
                 FillStateGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
-        } 
+        }
 
         #endregion
     }
@@ -65,26 +76,28 @@ public partial class MasterPanel_State_StateList : System.Web.UI.Page
     {
         #region Delete State By PK
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
-            objCommand.CommandText = "PR_State_DeleteByPK";
-            objCommand.Parameters.AddWithValue("@StateID", StateID);
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_State_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@StateID", StateID);
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
         }
         catch (Exception ex)
         {
-
+            lblErrorMessage.Text = ex.Message.ToString();
         }
         finally
         {
-            objConnection.Close();
-        } 
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
     }

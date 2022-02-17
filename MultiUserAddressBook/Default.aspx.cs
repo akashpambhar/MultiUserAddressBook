@@ -19,57 +19,68 @@ public partial class _Default : System.Web.UI.Page
     }
     protected void btnLogin_Click(object sender, EventArgs e)
     {
-        #region Get User By UserName and Password
-
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
-
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_UserMaster_SelectByUserNamePassword";
-
-        objCommand.Parameters.AddWithValue("@UserName", txtUserName.Text.Trim());
-        objCommand.Parameters.AddWithValue("@Password", txtPassword.Text.Trim());
-
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-
-        DataTable dtUser = new DataTable();
-        dtUser.Load(objSDR);
-
-        objConnection.Close();
-
-        #endregion
-
-        #region Validate User
-
-        if (dtUser != null && dtUser.Rows.Count > 0)
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
         {
-            foreach (DataRow drUser in dtUser.Rows)
+            #region Get User By UserName and Password
+
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_UserMaster_SelectByUserNamePassword";
+
+            objCmd.Parameters.AddWithValue("@UserName", txtUserName.Text.Trim());
+            objCmd.Parameters.AddWithValue("@Password", txtPassword.Text.Trim());
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+
+            DataTable dtUser = new DataTable();
+            dtUser.Load(objSDR);
+            
+            #endregion
+
+            #region Validate User
+
+            if (dtUser != null && dtUser.Rows.Count > 0)
             {
-                if (!drUser["UserID"].Equals(DBNull.Value))
+                foreach (DataRow drUser in dtUser.Rows)
                 {
-                    Session["UserID"] = drUser["UserID"].ToString();
+                    if (!drUser["UserID"].Equals(DBNull.Value))
+                    {
+                        Session["UserID"] = drUser["UserID"].ToString();
+                    }
+                    if (!drUser["UserName"].Equals(DBNull.Value))
+                    {
+                        Session["UserName"] = drUser["UserName"].ToString();
+                    }
+                    if (!drUser["PhotoPath"].Equals(DBNull.Value))
+                    {
+                        Session["PhotoPath"] = drUser["PhotoPath"].ToString();
+                    }
+                    break;
                 }
-                if (!drUser["UserName"].Equals(DBNull.Value))
-                {
-                    Session["UserName"] = drUser["UserName"].ToString();
-                }
-                if (!drUser["PhotoPath"].Equals(DBNull.Value))
-                {
-                    Session["PhotoPath"] = drUser["PhotoPath"].ToString();
-                }
-                break;
+                Response.Redirect("~/AB/AdminPanel/Contact");
             }
-            Response.Redirect("~/AB/AdminPanel/Contact");
-        }
-        else
-        {
-            lblErrorMessage.Text = "Either Username or Password is not wrong, please try again";
-            txtUserName.Text = "";
-            txtPassword.Text = "";
-            txtUserName.Focus();
-        }
+            else
+            {
+                lblErrorMessage.Text = "Either Username or Password is not wrong, please try again";
+                txtUserName.Text = "";
+                txtPassword.Text = "";
+                txtUserName.Focus();
+            }
 
-        #endregion
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
 }

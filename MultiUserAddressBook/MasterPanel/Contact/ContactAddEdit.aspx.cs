@@ -19,7 +19,8 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                FillCountryAndContactCategoryDDL(Convert.ToInt32(Session["UserID"].ToString()));
+                FillCountryDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+                FillContactCategoryDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
                 if (Page.RouteData.Values["ContactID"] != null)
                 {
                     LoadControls(Convert.ToInt32(Session["UserID"].ToString()));
@@ -29,53 +30,92 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
             #endregion
         }
     }
-    private void FillCountryAndContactCategoryDDL(Int32 UserID)
+    private void FillCountryDropDownList(Int32 UserID)
     {
-        #region Set up Connection and Command
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            #region Set up Connection and Command
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
 
-        #endregion
+            #endregion
 
-        #region Get All Countries By UserID
+            #region Get All Countries By UserID
 
-        objCommand.CommandText = "PR_Country_SelectAllByUserID";
+            objCmd.CommandText = "PR_Country_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-        ddlCountry.DataSource = objSDR;
-        ddlCountry.DataTextField = "CountryName";
-        ddlCountry.DataValueField = "CountryID";
-        ddlCountry.DataBind();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+            ddlCountry.DataSource = objSDR;
+            ddlCountry.DataTextField = "CountryName";
+            ddlCountry.DataValueField = "CountryID";
+            ddlCountry.DataBind();
 
-        objSDR.Close();
+            objSDR.Close();
+
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         ddlCountry.Items.Insert(0, new ListItem("Select Country...", "-1"));
+    }
+    private void FillContactCategoryDropDownList(Int32 UserID)
+    {
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            #region Set up Connection and Command
 
-        #endregion
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        #region Get All Contact Categories By UserID
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
 
-        objCommand.CommandText = "PR_ContactCategory_SelectAllByUserID";
+            #endregion
 
-        objSDR = objCommand.ExecuteReader();
-        ddlContactCategory.DataSource = objSDR;
-        ddlContactCategory.DataTextField = "ContactCategoryName";
-        ddlContactCategory.DataValueField = "ContactCategoryID";
-        ddlContactCategory.DataBind();
+            #region Get All Contact Categories By UserID
 
-        objConnection.Close();
+            objCmd.CommandText = "PR_ContactCategory_SelectAllByUserID";
+
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+
+            ddlContactCategory.DataSource = objSDR;
+            ddlContactCategory.DataTextField = "ContactCategoryName";
+            ddlContactCategory.DataValueField = "ContactCategoryID";
+            ddlContactCategory.DataBind();
+
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         ddlContactCategory.Items.Insert(0, new ListItem("Select Contact Category...", "-1"));
-
-        #endregion
     }
-    private void FillStateDDL(Int32 UserID)
+    private void FillStateDropDownList(Int32 UserID)
     {
         if (ddlCountry.SelectedIndex == 0)
         {
@@ -83,28 +123,39 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         }
         else
         {
-            #region Get All States By CountryID and UserID
+            SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+            try
+            {
+                #region Get All States By CountryID and UserID
 
-            SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-            objConnection.Open();
+                if (objConn.State != ConnectionState.Open)
+                    objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand objCmd = objConn.CreateCommand();
+                objCmd.CommandType = CommandType.StoredProcedure;
 
-            objCommand.Parameters.AddWithValue("@UserID", UserID);
+                objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-            objCommand.CommandText = "PR_State_SelectDropDownListByUserID";
-            objCommand.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
+                objCmd.CommandText = "PR_State_SelectDropDownListByUserID";
+                objCmd.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
 
-            SqlDataReader objSDR = objCommand.ExecuteReader();
-            ddlState.DataSource = objSDR;
-            ddlState.DataTextField = "StateName";
-            ddlState.DataValueField = "StateID";
-            ddlState.DataBind();
+                SqlDataReader objSDR = objCmd.ExecuteReader();
+                ddlState.DataSource = objSDR;
+                ddlState.DataTextField = "StateName";
+                ddlState.DataValueField = "StateID";
+                ddlState.DataBind();
 
-            objConnection.Close();
-
-            #endregion
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                lblErrorMessage.Text = ex.Message.ToString();
+            }
+            finally
+            {
+                if (objConn.State != ConnectionState.Closed)
+                    objConn.Close();
+            }
         }
 
         ddlState.Items.Insert(0, new ListItem("Select State...", "-1"));
@@ -113,14 +164,14 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
     {
         if (Session["UserID"] != null)
         {
-            FillStateDDL(Convert.ToInt32(Session["UserID"].ToString()));
-            FillCityDDL(Convert.ToInt32(Session["UserID"].ToString()));
+            FillStateDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+            FillCityDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
         }
         if (ddlCountry.SelectedIndex == 0)
         {
             ddlState.Items.Clear();
             ddlCity.Items.Clear();
-            ddlState.Items.Insert(0, new ListItem("Select City...", "-1"));
+            ddlState.Items.Insert(0, new ListItem("Select State...", "-1"));
             ddlCity.Items.Insert(0, new ListItem("Select City...", "-1"));
         }
     }
@@ -215,31 +266,32 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
         #endregion Gather Information
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
             #region Open Connection and Set up Command
 
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
 
             #endregion
 
             #region Common Parameters to pass
 
-            objCommand.Parameters.AddWithValue("@ContactCategoryID", strContactCategoryID);
-            objCommand.Parameters.AddWithValue("@ContactName", strContactName);
-            objCommand.Parameters.AddWithValue("@Address", strAddress);
-            objCommand.Parameters.AddWithValue("@Pincode", strPincode);
-            objCommand.Parameters.AddWithValue("@CityID", strCityID);
-            objCommand.Parameters.AddWithValue("@StateID", strStateID);
-            objCommand.Parameters.AddWithValue("@CountryID", strCountryID);
-            objCommand.Parameters.AddWithValue("@EmailAddress", strEmailAddress);
-            objCommand.Parameters.AddWithValue("@MobileNo", strMobileNo);
-            objCommand.Parameters.AddWithValue("@FacebookID", strFacebookID);
-            objCommand.Parameters.AddWithValue("@LinkedInID", strLinkedInID);
+            objCmd.Parameters.AddWithValue("@ContactCategoryID", strContactCategoryID);
+            objCmd.Parameters.AddWithValue("@ContactName", strContactName);
+            objCmd.Parameters.AddWithValue("@Address", strAddress);
+            objCmd.Parameters.AddWithValue("@Pincode", strPincode);
+            objCmd.Parameters.AddWithValue("@CityID", strCityID);
+            objCmd.Parameters.AddWithValue("@StateID", strStateID);
+            objCmd.Parameters.AddWithValue("@CountryID", strCountryID);
+            objCmd.Parameters.AddWithValue("@EmailAddress", strEmailAddress);
+            objCmd.Parameters.AddWithValue("@MobileNo", strMobileNo);
+            objCmd.Parameters.AddWithValue("@FacebookID", strFacebookID);
+            objCmd.Parameters.AddWithValue("@LinkedInID", strLinkedInID);
 
             #endregion
 
@@ -247,20 +299,20 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             if (Page.RouteData.Values["ContactID"] != null)
             {
-                objCommand.CommandText = "PR_Contact_UpdateByPK";
-                objCommand.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
+                objCmd.CommandText = "PR_Contact_UpdateByPK";
+                objCmd.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
             }
             else
             {
-                objCommand.CommandText = "PR_Contact_Insert";
+                objCmd.CommandText = "PR_Contact_Insert";
                 if (Session["UserID"] != null)
                 {
-                    objCommand.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
+                    objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
-                objCommand.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+                objCmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
             }
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
 
             #endregion
 
@@ -284,7 +336,8 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         }
         finally
         {
-            objConnection.Close();
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
         }
 
         #region Clear Fields or Redirect
@@ -299,29 +352,6 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         }
 
         #endregion
-    }
-    private Object DBNullOrStringValue(String val)
-    {
-        if (String.IsNullOrEmpty(val) || val == "-1")
-        {
-            return DBNull.Value;
-        }
-        return val;
-    }
-    private void DBNullOrStringValue(TextBox element, Object val)
-    {
-        if (!val.Equals(DBNull.Value))
-        {
-            element.Text = val.ToString();
-        }
-    }
-
-    private void DBNullOrStringValue(DropDownList element, Object val)
-    {
-        if (!val.Equals(DBNull.Value))
-        {
-            element.SelectedValue = val.ToString();
-        }
     }
     private void clearFields()
     {
@@ -341,10 +371,10 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
     {
         if (Session["UserID"] != null)
         {
-            FillCityDDL(Convert.ToInt32(Session["UserID"].ToString()));
+            FillCityDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
         }
     }
-    private void FillCityDDL(Int32 UserID)
+    private void FillCityDropDownList(Int32 UserID)
     {
         if (ddlCountry.SelectedIndex == 0 && ddlState.SelectedIndex == 0)
         {
@@ -352,28 +382,40 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         }
         else
         {
-            #region Get All Cities By StateID and UserID
+            SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+            try
+            {
+                #region Get All Cities By StateID and UserID
 
-            SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-            objConnection.Open();
+                if (objConn.State != ConnectionState.Open)
+                    objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
+                SqlCommand objCmd = objConn.CreateCommand();
+                objCmd.CommandType = CommandType.StoredProcedure;
 
-            objCommand.Parameters.AddWithValue("@UserID", UserID);
+                objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-            objCommand.CommandText = "PR_City_SelectDropDownListByUserID";
-            objCommand.Parameters.AddWithValue("@StateID", ddlState.SelectedValue);
+                objCmd.CommandText = "PR_City_SelectDropDownListByUserID";
+                objCmd.Parameters.AddWithValue("@StateID", ddlState.SelectedValue);
 
-            SqlDataReader objSDR = objCommand.ExecuteReader();
-            ddlCity.DataSource = objSDR;
-            ddlCity.DataTextField = "CityName";
-            ddlCity.DataValueField = "CityID";
-            ddlCity.DataBind();
+                SqlDataReader objSDR = objCmd.ExecuteReader();
+                ddlCity.DataSource = objSDR;
+                ddlCity.DataTextField = "CityName";
+                ddlCity.DataValueField = "CityID";
+                ddlCity.DataBind();
 
-            objConnection.Close();
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                lblErrorMessage.Text = ex.Message.ToString();
+            }
+            finally
+            {
+                if (objConn.State != ConnectionState.Closed)
+                    objConn.Close();
+            }
 
-            #endregion
         }
 
         ddlCity.Items.Insert(0, new ListItem("Select City...", "-1"));
@@ -384,55 +426,90 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
     }
     private void LoadControls(Int32 UserID)
     {
-        #region Get Contact By PK
-
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
-
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_Contact_SelectByPK";
-
-        objCommand.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
-
-        SqlDataReader objSDR = objCommand.ExecuteReader();
-
-        #endregion
-
-        #region Set obtained values to controls and Close connection
-
-        if (objSDR.HasRows)
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
         {
-            while (objSDR.Read())
+            #region Get Contact By PK
+
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Contact_SelectByPK";
+
+            objCmd.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+
+            #endregion
+
+            #region Set obtained values to controls and Close connection
+
+            if (objSDR.HasRows)
             {
-                DBNullOrStringValue(txtContactName, objSDR["ContactName"]);
-                DBNullOrStringValue(ddlContactCategory, objSDR["ContactCategoryID"]);
-                DBNullOrStringValue(txtMobileNo, objSDR["MobileNo"]);
-                DBNullOrStringValue(txtEmail, objSDR["EmailAddress"]);
-                DBNullOrStringValue(txtAddress, objSDR["Address"]);
-                DBNullOrStringValue(txtPincode, objSDR["Pincode"]);
-
-                if (!objSDR["CountryID"].Equals(DBNull.Value))
+                while (objSDR.Read())
                 {
-                    ddlCountry.SelectedValue = objSDR["CountryID"].ToString();
+                    if (!objSDR["ContactName"].Equals(DBNull.Value))
+                    {
+                        txtContactName.Text = objSDR["ContactName"].ToString();
+                    }
+                    if (!objSDR["ContactCategoryID"].Equals(DBNull.Value))
+                    {
+                        ddlContactCategory.SelectedValue = objSDR["ContactCategoryID"].ToString();
+                    }
+                    if (!objSDR["MobileNo"].Equals(DBNull.Value))
+                    {
+                        txtMobileNo.Text = objSDR["MobileNo"].ToString();
+                    }
+                    if (!objSDR["EmailAddress"].Equals(DBNull.Value))
+                    {
+                        txtEmail.Text = objSDR["EmailAddress"].ToString();
+                    }
+                    if (!objSDR["Address"].Equals(DBNull.Value))
+                    {
+                        txtAddress.Text = objSDR["Address"].ToString();
+                    }
+                    if (!objSDR["Pincode"].Equals(DBNull.Value))
+                    {
+                        txtPincode.Text = objSDR["Pincode"].ToString();
+                    }
+                    if (!objSDR["CountryID"].Equals(DBNull.Value))
+                    {
+                        ddlCountry.SelectedValue = objSDR["CountryID"].ToString();
+                    }
+                    FillStateDropDownList(UserID);
+                    if (!objSDR["StateID"].Equals(DBNull.Value))
+                    {
+                        ddlState.SelectedValue = objSDR["StateID"].ToString();
+                    }
+                    FillCityDropDownList(UserID);
+                    if (!objSDR["CityID"].Equals(DBNull.Value))
+                    {
+                        ddlCity.SelectedValue = objSDR["CityID"].ToString();
+                    }
+                    if (!objSDR["FacebookID"].Equals(DBNull.Value))
+                    {
+                        txtFacebookID.Text = objSDR["FacebookID"].ToString();
+                    }
+                    if (!objSDR["LinkedInID"].Equals(DBNull.Value))
+                    {
+                        txtLinkedInID.Text = objSDR["LinkedInID"].ToString();
+                    }
+                    break;
                 }
-                FillStateDDL(UserID);
-                if (!objSDR["StateID"].Equals(DBNull.Value))
-                {
-                    ddlState.SelectedValue = objSDR["StateID"].ToString();
-                }
-                FillCityDDL(UserID);
-                if (!objSDR["CityID"].Equals(DBNull.Value))
-                {
-                    ddlCity.SelectedValue = objSDR["CityID"].ToString();
-                }
-                DBNullOrStringValue(txtFacebookID, objSDR["FacebookID"]);
-                DBNullOrStringValue(txtLinkedInID, objSDR["LinkedInID"]);
             }
+
+            #endregion
         }
-
-        objConnection.Close();
-
-        #endregion
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
 }

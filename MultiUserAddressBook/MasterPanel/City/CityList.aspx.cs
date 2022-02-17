@@ -19,32 +19,43 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
             if (Session["UserID"] != null)
             {
                 FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
-            } 
+            }
 
             #endregion
         }
     }
     private void FillCityGridView(Int32 UserID)
     {
-        #region Get All Cities By UserID
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            #region Get All Cities By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_City_SelectAllByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_City_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
 
-        gvCityList.DataSource = objSDR;
-        gvCityList.DataBind();
+            gvCityList.DataSource = objSDR;
+            gvCityList.DataBind();
 
-        objConnection.Close(); 
-
-        #endregion
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
     protected void gvCityList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
@@ -57,7 +68,7 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
             {
                 FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
-        } 
+        }
 
         #endregion
     }
@@ -65,26 +76,28 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
     {
         #region Delete City By PK
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
-            objCommand.CommandText = "PR_City_DeleteByPK";
-            objCommand.Parameters.AddWithValue("@CityID", CityID);
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_City_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@CityID", CityID);
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
         }
         catch (Exception ex)
         {
-
+            lblErrorMessage.Text = ex.Message.ToString();
         }
         finally
         {
-            objConnection.Close();
-        } 
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
     }

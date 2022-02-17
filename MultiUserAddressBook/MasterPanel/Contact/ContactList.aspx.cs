@@ -26,25 +26,36 @@ public partial class MasterPanel_Contact_ContactList : System.Web.UI.Page
     }
     private void FillContactGridView(Int32 UserID)
     {
-        #region Get All Contacts By UserID
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            #region Get All Contacts By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_Contact_SelectAllByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Contact_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
 
-        gvContactList.DataSource = objSDR;
-        gvContactList.DataBind();
+            gvContactList.DataSource = objSDR;
+            gvContactList.DataBind();
 
-        objConnection.Close(); 
-
-        #endregion
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
     }
     protected void gvContactList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
@@ -65,26 +76,26 @@ public partial class MasterPanel_Contact_ContactList : System.Web.UI.Page
     {
         #region Delete Contact By PK
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            objConnection.Open();
+            objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
-            objCommand.CommandText = "PR_Contact_DeleteByPK";
-            objCommand.Parameters.AddWithValue("@ContactID", ContactID);
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Contact_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@ContactID", ContactID);
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
         }
         catch (Exception ex)
         {
-
+            lblErrorMessage.Text = ex.Message.ToString();
         }
         finally
         {
-            objConnection.Close();
-        } 
+            objConn.Close();
+        }
 
         #endregion
     }

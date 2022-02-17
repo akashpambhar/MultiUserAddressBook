@@ -28,21 +28,32 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
     {
         #region Get All Contact Categories By UserID
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        objConnection.Open();
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-        SqlCommand objCommand = objConnection.CreateCommand();
-        objCommand.CommandType = CommandType.StoredProcedure;
-        objCommand.CommandText = "PR_ContactCategory_SelectAllByUserID";
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_ContactCategory_SelectAllByUserID";
 
-        objCommand.Parameters.AddWithValue("@UserID", UserID);
+            objCmd.Parameters.AddWithValue("@UserID", UserID);
 
-        SqlDataReader objSDR = objCommand.ExecuteReader();
+            SqlDataReader objSDR = objCmd.ExecuteReader();
 
-        gvContactCategoryList.DataSource = objSDR;
-        gvContactCategoryList.DataBind();
-
-        objConnection.Close(); 
+            gvContactCategoryList.DataSource = objSDR;
+            gvContactCategoryList.DataBind();
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
     }
@@ -57,7 +68,7 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
             {
                 FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
-        } 
+        }
 
         #endregion
     }
@@ -65,26 +76,28 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
     {
         #region Delete ContactCategory By PK
 
-        SqlConnection objConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            objConnection.Open();
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
 
-            SqlCommand objCommand = objConnection.CreateCommand();
-            objCommand.CommandType = CommandType.StoredProcedure;
-            objCommand.CommandText = "PR_ContactCategory_DeleteByPK";
-            objCommand.Parameters.AddWithValue("@ContactCategoryID", ContactCategoryID);
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_ContactCategory_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@ContactCategoryID", ContactCategoryID);
 
-            objCommand.ExecuteNonQuery();
+            objCmd.ExecuteNonQuery();
         }
         catch (Exception ex)
         {
-
+            lblErrorMessage.Text = ex.Message.ToString();
         }
         finally
         {
-            objConnection.Close();
-        } 
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
 
         #endregion
     }
