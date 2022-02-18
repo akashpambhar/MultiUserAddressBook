@@ -13,11 +13,11 @@
                 <asp:RequiredFieldValidator ID="rfvContactName" runat="server" ErrorMessage="Enter Contact Name" ControlToValidate="txtContactName" Display="Dynamic" ForeColor="#CC0000"></asp:RequiredFieldValidator>
             </div>
             <div class="col-md-6">
-                <label for="ddlContactCategory" class="form-label">Contact Category</label>
-                <asp:DropDownList ID="ddlContactCategory" runat="server" CssClass="form-select">
+                <label for="ddlContactCategoryID" class="form-label">Contact Category</label>
+                <asp:DropDownList ID="ddlContactCategoryID" runat="server" CssClass="form-select">
                     <asp:ListItem Selected="True" Value="-1">Select Contact Category...</asp:ListItem>
                 </asp:DropDownList>
-                <asp:RequiredFieldValidator ID="rfvContactCategory" runat="server" ErrorMessage="Select a Contact Category" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlContactCategory" InitialValue="-1"></asp:RequiredFieldValidator>
+                <asp:RequiredFieldValidator ID="rfvContactCategory" runat="server" ErrorMessage="Select a Contact Category" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlContactCategoryID" InitialValue="-1"></asp:RequiredFieldValidator>
             </div>
         </div>
         <div class="row mb-3">
@@ -43,20 +43,20 @@
         </div>
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="ddlCountry" class="form-label">Country</label>
-                <asp:DropDownList ID="ddlCountry" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlCountry_SelectedIndexChanged" AutoPostBack="True">
+                <label for="ddlCountryID" class="form-label">Country</label>
+                <asp:DropDownList ID="ddlCountryID" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlCountryID_SelectedIndexChanged" AutoPostBack="True">
                     <asp:ListItem Selected="True" Value="-1">Select Country...</asp:ListItem>
                 </asp:DropDownList>
             </div>
             <div class="col-md-4">
-                <label for="ddlState" class="form-label">State</label>
-                <asp:DropDownList ID="ddlState" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlState_SelectedIndexChanged" AutoPostBack="True">
+                <label for="ddlStateID" class="form-label">State</label>
+                <asp:DropDownList ID="ddlStateID" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlStateID_SelectedIndexChanged" AutoPostBack="True">
                     <asp:ListItem Selected="True" Value="-1">Select State...</asp:ListItem>
                 </asp:DropDownList>
             </div>
             <div class="col-md-4">
-                <label for="ddlCity" class="form-label">City</label>
-                <asp:DropDownList ID="ddlCity" runat="server" CssClass="form-select">
+                <label for="ddlCityID" class="form-label">City</label>
+                <asp:DropDownList ID="ddlCityID" runat="server" CssClass="form-select">
                     <asp:ListItem Selected="True" Value="-1">Select City...</asp:ListItem>
                 </asp:DropDownList>
             </div>

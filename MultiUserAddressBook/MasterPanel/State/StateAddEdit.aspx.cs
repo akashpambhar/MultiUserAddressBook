@@ -49,10 +49,10 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
             }
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
-            ddlCountry.DataSource = objSDR;
-            ddlCountry.DataTextField = "CountryName";
-            ddlCountry.DataValueField = "CountryID";
-            ddlCountry.DataBind();
+            ddlCountryID.DataSource = objSDR;
+            ddlCountryID.DataTextField = "CountryName";
+            ddlCountryID.DataValueField = "CountryID";
+            ddlCountryID.DataBind();
 
             #endregion
         }
@@ -66,7 +66,7 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
                 objConn.Close();
         }
 
-        ddlCountry.Items.Insert(0, new ListItem("Select Country...", "-1"));
+        ddlCountryID.Items.Insert(0, new ListItem("Select Country...", "-1"));
     }
     protected void btnSave_Click(object sender, EventArgs e)
     {
@@ -78,7 +78,7 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
         {
             strErrorMessage += "Enter State Name<br/>";
         }
-        if (ddlCountry.SelectedIndex == 0)
+        if (ddlCountryID.SelectedIndex == 0)
         {
             strErrorMessage += "Select Country<br/>";
         }
@@ -99,9 +99,9 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
 
         #region Gather Information
 
-        if (ddlCountry.SelectedIndex > 0)
+        if (ddlCountryID.SelectedIndex > 0)
         {
-            strCountryID = Convert.ToInt32(ddlCountry.SelectedValue);
+            strCountryID = Convert.ToInt32(ddlCountryID.SelectedValue);
         }
         if (txtStateName.Text.Trim() != "")
         {
@@ -190,7 +190,7 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
     }
     private void clearFields()
     {
-        ddlCountry.SelectedIndex = 0;
+        ddlCountryID.SelectedIndex = 0;
         txtStateName.Text = "";
     }
     protected void btnCancel_Click(object sender, EventArgs e)
@@ -229,7 +229,7 @@ public partial class MasterPanel_State_StateAddEdit : System.Web.UI.Page
                     }
                     if (!objSDR["CountryID"].Equals(DBNull.Value))
                     {
-                        ddlCountry.SelectedValue = objSDR["CountryID"].ToString();
+                        ddlCountryID.SelectedValue = objSDR["CountryID"].ToString();
                     }
                     break;
                 }

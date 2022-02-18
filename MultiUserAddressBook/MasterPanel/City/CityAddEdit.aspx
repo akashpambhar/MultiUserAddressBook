@@ -23,17 +23,17 @@
         </div>
         <div class="row mb-3">
             <div class="col-md-6 mb-3">
-                <label for="ddlCountry" class="form-label">Country</label>
-                <asp:DropDownList ID="ddlCountry" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlCountry_SelectedIndexChanged" AutoPostBack="True">
+                <label for="ddlCountryID" class="form-label">Country</label>
+                <asp:DropDownList ID="ddlCountryID" runat="server" CssClass="form-select" OnSelectedIndexChanged="ddlCountryID_SelectedIndexChanged" AutoPostBack="True">
                 </asp:DropDownList>
-                <asp:RequiredFieldValidator ID="rfvCountry" runat="server" ErrorMessage="Select a Country" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlCountry" InitialValue="-1"></asp:RequiredFieldValidator>
+                <asp:RequiredFieldValidator ID="rfvCountry" runat="server" ErrorMessage="Select a Country" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlCountryID" InitialValue="-1"></asp:RequiredFieldValidator>
             </div>
             <div class="col-md-6 mb-3">
-                <label for="ddlState" class="form-label">State</label>
-                <asp:DropDownList ID="ddlState" runat="server" CssClass="form-select">
+                <label for="ddlStateID" class="form-label">State</label>
+                <asp:DropDownList ID="ddlStateID" runat="server" CssClass="form-select">
                     <asp:ListItem Selected="True" Value="-1">Select State...</asp:ListItem>
                 </asp:DropDownList>
-                <asp:RequiredFieldValidator ID="rfvState" runat="server" ErrorMessage="Select a State" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlState" InitialValue="-1"></asp:RequiredFieldValidator>
+                <asp:RequiredFieldValidator ID="rfvState" runat="server" ErrorMessage="Select a State" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlStateID" InitialValue="-1"></asp:RequiredFieldValidator>
             </div>
         </div>
         <div class="col-12 text-center">

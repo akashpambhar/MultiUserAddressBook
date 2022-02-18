@@ -48,10 +48,10 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
-            ddlCountry.DataSource = objSDR;
-            ddlCountry.DataTextField = "CountryName";
-            ddlCountry.DataValueField = "CountryID";
-            ddlCountry.DataBind();
+            ddlCountryID.DataSource = objSDR;
+            ddlCountryID.DataTextField = "CountryName";
+            ddlCountryID.DataValueField = "CountryID";
+            ddlCountryID.DataBind();
         }
         catch (Exception ex)
         {
@@ -65,7 +65,7 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         #endregion
 
-        ddlCountry.Items.Insert(0, new ListItem("Select Country...", "-1"));
+        ddlCountryID.Items.Insert(0, new ListItem("Select Country...", "-1"));
     }
     private void FillStateDropDownList(Int32 UserID)
     {
@@ -81,14 +81,14 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
             objCmd.CommandType = CommandType.StoredProcedure;
             objCmd.CommandText = "PR_State_SelectDropDownListByUserID";
 
-            objCmd.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
+            objCmd.Parameters.AddWithValue("@CountryID", ddlCountryID.SelectedValue);
             objCmd.Parameters.AddWithValue("@UserID", UserID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
-            ddlState.DataSource = objSDR;
-            ddlState.DataTextField = "StateName";
-            ddlState.DataValueField = "StateID";
-            ddlState.DataBind();
+            ddlStateID.DataSource = objSDR;
+            ddlStateID.DataTextField = "StateName";
+            ddlStateID.DataValueField = "StateID";
+            ddlStateID.DataBind();
         }
         catch (Exception ex)
         {
@@ -102,9 +102,9 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
 
         #endregion
 
-        ddlState.Items.Insert(0, new ListItem("Select State...", "-1"));
+        ddlStateID.Items.Insert(0, new ListItem("Select State...", "-1"));
     }
-    protected void ddlCountry_SelectedIndexChanged(object sender, EventArgs e)
+    protected void ddlCountryID_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (Session["UserID"] != null)
         {
@@ -121,11 +121,11 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         {
             strErrorMessage += "Enter City Name<br/>";
         }
-        if (ddlCountry.SelectedIndex == 0)
+        if (ddlCountryID.SelectedIndex == 0)
         {
             strErrorMessage += "Select Country<br/>";
         }
-        if (ddlState.SelectedIndex == 0)
+        if (ddlStateID.SelectedIndex == 0)
         {
             strErrorMessage += "Select State<br/>";
         }
@@ -160,9 +160,9 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         {
             strSTDCode = txtSTDCode.Text.Trim();
         }
-        if (ddlState.SelectedIndex > 0)
+        if (ddlStateID.SelectedIndex > 0)
         {
-            strStateID = Convert.ToInt32(ddlState.SelectedValue);
+            strStateID = Convert.ToInt32(ddlStateID.SelectedValue);
         }
 
         #endregion Gather Information
@@ -255,8 +255,8 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
         txtCityName.Text = "";
         txtPincode.Text = "";
         txtSTDCode.Text = "";
-        ddlCountry.SelectedIndex = 0;
-        ddlState.SelectedIndex = 0;
+        ddlCountryID.SelectedIndex = 0;
+        ddlStateID.SelectedIndex = 0;
     }
     protected void btnCancel_Click(object sender, EventArgs e)
     {
@@ -302,11 +302,11 @@ public partial class MasterPanel_City_CityAddEdit : System.Web.UI.Page
                     }
                     if (!objSDR["CountryID"].Equals(DBNull.Value))
                     {
-                        ddlCountry.SelectedValue = objSDR["CountryID"].ToString();
+                        ddlCountryID.SelectedValue = objSDR["CountryID"].ToString();
                     }
                     if (!objSDR["StateID"].Equals(DBNull.Value))
                     {
-                        ddlState.SelectedValue = objSDR["StateID"].ToString();
+                        ddlStateID.SelectedValue = objSDR["StateID"].ToString();
                     }
                     break;
                 }

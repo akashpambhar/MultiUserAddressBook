@@ -52,10 +52,10 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
             objCmd.Parameters.AddWithValue("@UserID", UserID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
-            ddlCountry.DataSource = objSDR;
-            ddlCountry.DataTextField = "CountryName";
-            ddlCountry.DataValueField = "CountryID";
-            ddlCountry.DataBind();
+            ddlCountryID.DataSource = objSDR;
+            ddlCountryID.DataTextField = "CountryName";
+            ddlCountryID.DataValueField = "CountryID";
+            ddlCountryID.DataBind();
 
             objSDR.Close();
 
@@ -71,7 +71,7 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                 objConn.Close();
         }
 
-        ddlCountry.Items.Insert(0, new ListItem("Select Country...", "-1"));
+        ddlCountryID.Items.Insert(0, new ListItem("Select Country...", "-1"));
     }
     private void FillContactCategoryDropDownList(Int32 UserID)
     {
@@ -96,10 +96,10 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
-            ddlContactCategory.DataSource = objSDR;
-            ddlContactCategory.DataTextField = "ContactCategoryName";
-            ddlContactCategory.DataValueField = "ContactCategoryID";
-            ddlContactCategory.DataBind();
+            ddlContactCategoryID.DataSource = objSDR;
+            ddlContactCategoryID.DataTextField = "ContactCategoryName";
+            ddlContactCategoryID.DataValueField = "ContactCategoryID";
+            ddlContactCategoryID.DataBind();
 
             #endregion
         }
@@ -113,13 +113,13 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                 objConn.Close();
         }
 
-        ddlContactCategory.Items.Insert(0, new ListItem("Select Contact Category...", "-1"));
+        ddlContactCategoryID.Items.Insert(0, new ListItem("Select Contact Category...", "-1"));
     }
     private void FillStateDropDownList(Int32 UserID)
     {
-        if (ddlCountry.SelectedIndex == 0)
+        if (ddlCountryID.SelectedIndex == 0)
         {
-            ddlState.Items.Clear();
+            ddlStateID.Items.Clear();
         }
         else
         {
@@ -137,13 +137,13 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                 objCmd.Parameters.AddWithValue("@UserID", UserID);
 
                 objCmd.CommandText = "PR_State_SelectDropDownListByUserID";
-                objCmd.Parameters.AddWithValue("@CountryID", ddlCountry.SelectedValue);
+                objCmd.Parameters.AddWithValue("@CountryID", ddlCountryID.SelectedValue);
 
                 SqlDataReader objSDR = objCmd.ExecuteReader();
-                ddlState.DataSource = objSDR;
-                ddlState.DataTextField = "StateName";
-                ddlState.DataValueField = "StateID";
-                ddlState.DataBind();
+                ddlStateID.DataSource = objSDR;
+                ddlStateID.DataTextField = "StateName";
+                ddlStateID.DataValueField = "StateID";
+                ddlStateID.DataBind();
 
                 #endregion
             }
@@ -158,21 +158,21 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
             }
         }
 
-        ddlState.Items.Insert(0, new ListItem("Select State...", "-1"));
+        ddlStateID.Items.Insert(0, new ListItem("Select State...", "-1"));
     }
-    protected void ddlCountry_SelectedIndexChanged(object sender, EventArgs e)
+    protected void ddlCountryID_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (Session["UserID"] != null)
         {
             FillStateDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
             FillCityDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
         }
-        if (ddlCountry.SelectedIndex == 0)
+        if (ddlCountryID.SelectedIndex == 0)
         {
-            ddlState.Items.Clear();
-            ddlCity.Items.Clear();
-            ddlState.Items.Insert(0, new ListItem("Select State...", "-1"));
-            ddlCity.Items.Insert(0, new ListItem("Select City...", "-1"));
+            ddlStateID.Items.Clear();
+            ddlCityID.Items.Clear();
+            ddlStateID.Items.Insert(0, new ListItem("Select State...", "-1"));
+            ddlCityID.Items.Insert(0, new ListItem("Select City...", "-1"));
         }
     }
     protected void btnSave_Click(object sender, EventArgs e)
@@ -185,7 +185,7 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         {
             strErrorMessage += "Enter Contact Name<br/>";
         }
-        if (ddlContactCategory.SelectedIndex == 0)
+        if (ddlContactCategoryID.SelectedIndex == 0)
         {
             strErrorMessage += "Select Contact category<br/>";
         }
@@ -219,9 +219,9 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
         #region Gather Information
 
-        if (ddlContactCategory.SelectedIndex > 0)
+        if (ddlContactCategoryID.SelectedIndex > 0)
         {
-            strContactCategoryID = Convert.ToInt32(ddlContactCategory.SelectedValue);
+            strContactCategoryID = Convert.ToInt32(ddlContactCategoryID.SelectedValue);
         }
         if (txtContactName.Text.Trim() != "")
         {
@@ -235,17 +235,17 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         {
             strPincode = txtPincode.Text.Trim();
         }
-        if (ddlCity.SelectedIndex > 0)
+        if (ddlCityID.SelectedIndex > 0)
         {
-            strCityID = Convert.ToInt32(ddlCity.SelectedValue);
+            strCityID = Convert.ToInt32(ddlCityID.SelectedValue);
         }
-        if (ddlState.SelectedIndex > 0)
+        if (ddlStateID.SelectedIndex > 0)
         {
-            strStateID = Convert.ToInt32(ddlState.SelectedValue);
+            strStateID = Convert.ToInt32(ddlStateID.SelectedValue);
         }
-        if (ddlCountry.SelectedIndex > 0)
+        if (ddlCountryID.SelectedIndex > 0)
         {
-            strCountryID = Convert.ToInt32(ddlCountry.SelectedValue);
+            strCountryID = Convert.ToInt32(ddlCountryID.SelectedValue);
         }
         if (txtEmail.Text.Trim() != "")
         {
@@ -356,18 +356,18 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
     private void clearFields()
     {
         txtContactName.Text = "";
-        ddlContactCategory.SelectedIndex = 0;
+        ddlContactCategoryID.SelectedIndex = 0;
         txtMobileNo.Text = "";
         txtEmail.Text = "";
         txtAddress.Text = "";
         txtPincode.Text = "";
-        ddlCountry.SelectedIndex = 0;
-        ddlState.SelectedIndex = 0;
-        ddlCity.SelectedIndex = 0;
+        ddlCountryID.SelectedIndex = 0;
+        ddlStateID.SelectedIndex = 0;
+        ddlCityID.SelectedIndex = 0;
         txtFacebookID.Text = "";
         txtLinkedInID.Text = "";
     }
-    protected void ddlState_SelectedIndexChanged(object sender, EventArgs e)
+    protected void ddlStateID_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (Session["UserID"] != null)
         {
@@ -376,9 +376,9 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
     }
     private void FillCityDropDownList(Int32 UserID)
     {
-        if (ddlCountry.SelectedIndex == 0 && ddlState.SelectedIndex == 0)
+        if (ddlCountryID.SelectedIndex == 0 && ddlStateID.SelectedIndex == 0)
         {
-            ddlCity.Items.Clear();
+            ddlCityID.Items.Clear();
         }
         else
         {
@@ -396,13 +396,13 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                 objCmd.Parameters.AddWithValue("@UserID", UserID);
 
                 objCmd.CommandText = "PR_City_SelectDropDownListByUserID";
-                objCmd.Parameters.AddWithValue("@StateID", ddlState.SelectedValue);
+                objCmd.Parameters.AddWithValue("@StateID", ddlStateID.SelectedValue);
 
                 SqlDataReader objSDR = objCmd.ExecuteReader();
-                ddlCity.DataSource = objSDR;
-                ddlCity.DataTextField = "CityName";
-                ddlCity.DataValueField = "CityID";
-                ddlCity.DataBind();
+                ddlCityID.DataSource = objSDR;
+                ddlCityID.DataTextField = "CityName";
+                ddlCityID.DataValueField = "CityID";
+                ddlCityID.DataBind();
 
                 #endregion
             }
@@ -418,7 +418,7 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
         }
 
-        ddlCity.Items.Insert(0, new ListItem("Select City...", "-1"));
+        ddlCityID.Items.Insert(0, new ListItem("Select City...", "-1"));
     }
     protected void btnCancel_Click(object sender, EventArgs e)
     {
@@ -456,7 +456,7 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                     }
                     if (!objSDR["ContactCategoryID"].Equals(DBNull.Value))
                     {
-                        ddlContactCategory.SelectedValue = objSDR["ContactCategoryID"].ToString();
+                        ddlContactCategoryID.SelectedValue = objSDR["ContactCategoryID"].ToString();
                     }
                     if (!objSDR["MobileNo"].Equals(DBNull.Value))
                     {
@@ -476,17 +476,17 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                     }
                     if (!objSDR["CountryID"].Equals(DBNull.Value))
                     {
-                        ddlCountry.SelectedValue = objSDR["CountryID"].ToString();
+                        ddlCountryID.SelectedValue = objSDR["CountryID"].ToString();
                     }
                     FillStateDropDownList(UserID);
                     if (!objSDR["StateID"].Equals(DBNull.Value))
                     {
-                        ddlState.SelectedValue = objSDR["StateID"].ToString();
+                        ddlStateID.SelectedValue = objSDR["StateID"].ToString();
                     }
                     FillCityDropDownList(UserID);
                     if (!objSDR["CityID"].Equals(DBNull.Value))
                     {
-                        ddlCity.SelectedValue = objSDR["CityID"].ToString();
+                        ddlCityID.SelectedValue = objSDR["CityID"].ToString();
                     }
                     if (!objSDR["FacebookID"].Equals(DBNull.Value))
                     {
