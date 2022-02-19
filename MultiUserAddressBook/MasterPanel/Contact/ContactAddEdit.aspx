@@ -7,17 +7,19 @@
         <h3 class="text-center">Contact Add/Edit</h3>
         <hr />
         <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label for="txtContactName" class="form-label">Contact Name</label>
                 <asp:TextBox ID="txtContactName" runat="server" CssClass="form-control" />
                 <asp:RequiredFieldValidator ID="rfvContactName" runat="server" ErrorMessage="Enter Contact Name" ControlToValidate="txtContactName" Display="Dynamic" ForeColor="#CC0000"></asp:RequiredFieldValidator>
             </div>
-            <div class="col-md-6">
-                <label for="ddlContactCategoryID" class="form-label">Contact Category</label>
-                <asp:DropDownList ID="ddlContactCategoryID" runat="server" CssClass="form-select">
-                    <asp:ListItem Selected="True" Value="-1">Select Contact Category...</asp:ListItem>
-                </asp:DropDownList>
-                <asp:RequiredFieldValidator ID="rfvContactCategory" runat="server" ErrorMessage="Select a Contact Category" Display="Dynamic" ForeColor="#CC0000" ControlToValidate="ddlContactCategoryID" InitialValue="-1"></asp:RequiredFieldValidator>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <label for="cblContactCategoryID" class="form-label">Contact Category</label>
+                <asp:CheckBoxList ID="cblContactCategoryID" runat="server" CssClass="form-control" RepeatDirection="Vertical">
+                </asp:CheckBoxList>
+                <br />
+                <asp:Label ID="lblContactCategoryEmptyMessage" runat="server" CssClass="form-control mx-auto mb-3" Text="" ForeColor="#CC0000" EnableViewState="False" Visible="False"></asp:Label>
             </div>
         </div>
         <div class="row mb-3">
@@ -81,5 +83,12 @@
     </div>
 </asp:Content>
 <asp:Content ID="Content3" ContentPlaceHolderID="cphPageLevelScript" runat="Server">
+    <script>
+        $(document).ready(function () {
+            $("#cphMainBody_cblContactCategoryID td").addClass("form-check");
+            $("#cphMainBody_cblContactCategoryID input[type='checkbox']").addClass("form-check-input");
+            $("#cphMainBody_cblContactCategoryID input[type='checkbox']").addClass("form-check-label");
+        });
+    </script>
 </asp:Content>
 

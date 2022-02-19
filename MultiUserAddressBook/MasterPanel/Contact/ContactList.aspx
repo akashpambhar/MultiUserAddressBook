@@ -23,8 +23,8 @@
                     <Columns>
                         <asp:BoundField DataField="ContactID" HeaderText="ID" />
                         <asp:BoundField DataField="ContactName" HeaderText="Name" />
-                        <asp:BoundField DataField="MobileNo" HeaderText="Mobile No." />
                         <asp:BoundField DataField="ContactCategoryName" HeaderText="Contact Category" />
+                        <asp:BoundField DataField="MobileNo" HeaderText="Mobile No." />
                         <asp:BoundField DataField="Address" HeaderText="Address" />
                         <asp:BoundField DataField="CityName" HeaderText="City" />
                         <asp:BoundField DataField="StateName" HeaderText="State" />

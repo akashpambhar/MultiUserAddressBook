@@ -96,10 +96,10 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
-            ddlContactCategoryID.DataSource = objSDR;
-            ddlContactCategoryID.DataTextField = "ContactCategoryName";
-            ddlContactCategoryID.DataValueField = "ContactCategoryID";
-            ddlContactCategoryID.DataBind();
+            cblContactCategoryID.DataSource = objSDR;
+            cblContactCategoryID.DataTextField = "ContactCategoryName";
+            cblContactCategoryID.DataValueField = "ContactCategoryID";
+            cblContactCategoryID.DataBind();
 
             #endregion
         }
@@ -113,7 +113,11 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                 objConn.Close();
         }
 
-        ddlContactCategoryID.Items.Insert(0, new ListItem("Select Contact Category...", "-1"));
+        if (cblContactCategoryID.Items.Count == 0)
+        {
+            lblContactCategoryEmptyMessage.Visible = true;
+            lblContactCategoryEmptyMessage.Text = "No Categories Added. Please add one";
+        }
     }
     private void FillStateDropDownList(Int32 UserID)
     {
@@ -185,10 +189,6 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
         {
             strErrorMessage += "Enter Contact Name<br/>";
         }
-        if (ddlContactCategoryID.SelectedIndex == 0)
-        {
-            strErrorMessage += "Select Contact category<br/>";
-        }
         if (txtMobileNo.Text.Trim() == "")
         {
             strErrorMessage += "Enter Mobile Number<br/>";
@@ -203,7 +203,6 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
         #region Local Variables
 
-        SqlInt32 strContactCategoryID = SqlInt32.Null;
         SqlString strContactName = SqlString.Null;
         SqlString strAddress = SqlString.Null;
         SqlString strPincode = SqlString.Null;
@@ -219,10 +218,6 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
         #region Gather Information
 
-        if (ddlContactCategoryID.SelectedIndex > 0)
-        {
-            strContactCategoryID = Convert.ToInt32(ddlContactCategoryID.SelectedValue);
-        }
         if (txtContactName.Text.Trim() != "")
         {
             strContactName = txtContactName.Text.Trim();
@@ -281,7 +276,6 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             #region Common Parameters to pass
 
-            objCmd.Parameters.AddWithValue("@ContactCategoryID", strContactCategoryID);
             objCmd.Parameters.AddWithValue("@ContactName", strContactName);
             objCmd.Parameters.AddWithValue("@Address", strAddress);
             objCmd.Parameters.AddWithValue("@Pincode", strPincode);
@@ -295,12 +289,15 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             #endregion
 
+            SqlInt32 ContactID = 0;
+
             #region Check and Perform Insert or Update Contact
 
             if (Page.RouteData.Values["ContactID"] != null)
             {
                 objCmd.CommandText = "PR_Contact_UpdateByPK";
                 objCmd.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
+                ContactID = Convert.ToInt32(Page.RouteData.Values["ContactID"]);
             }
             else
             {
@@ -310,9 +307,53 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                     objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
                 }
                 objCmd.Parameters.AddWithValue("@CreationDate", DateTime.Now);
+                objCmd.Parameters.Add("@ContactID", SqlDbType.Int, 32).Direction = ParameterDirection.Output;
+                ContactID = Convert.ToInt32(objCmd.Parameters["@ContactID"].Value);
             }
 
             objCmd.ExecuteNonQuery();
+
+            #endregion
+
+            #region Insert Selected ContactCategory
+
+            foreach (ListItem liContactCategory in cblContactCategoryID.Items)
+            {
+                if (liContactCategory.Selected)
+                {
+                    try
+                    {
+                        SqlCommand objCmdContactCategory = objConn.CreateCommand();
+                        objCmdContactCategory.CommandType = CommandType.StoredProcedure;
+                        objCmdContactCategory.CommandText = "PR_ContactWiseContactCategory_Insert";
+                        objCmdContactCategory.Parameters.AddWithValue("@ContactID", ContactID);
+                        objCmdContactCategory.Parameters.AddWithValue("@ContactCategoryID", liContactCategory.Value);
+                        objCmdContactCategory.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        SqlCommand objCmdContactCategory = objConn.CreateCommand();
+                        objCmdContactCategory.CommandType = CommandType.StoredProcedure;
+                        objCmdContactCategory.CommandText = "PR_ContactWiseContactCategory_DeleteByContactIDAndContactCategoryID";
+                        objCmdContactCategory.Parameters.AddWithValue("@ContactID", ContactID);
+                        objCmdContactCategory.Parameters.AddWithValue("@ContactCategoryID", liContactCategory.Value);
+                        objCmdContactCategory.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            }
+
+            objConn.Close();
 
             #endregion
 
@@ -356,7 +397,7 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
     private void clearFields()
     {
         txtContactName.Text = "";
-        ddlContactCategoryID.SelectedIndex = 0;
+        cblContactCategoryID.ClearSelection();
         txtMobileNo.Text = "";
         txtEmail.Text = "";
         txtAddress.Text = "";
@@ -444,7 +485,7 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
 
             #endregion
 
-            #region Set obtained values to controls and Close connection
+            #region Set obtained values to controls
 
             if (objSDR.HasRows)
             {
@@ -453,10 +494,6 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                     if (!objSDR["ContactName"].Equals(DBNull.Value))
                     {
                         txtContactName.Text = objSDR["ContactName"].ToString();
-                    }
-                    if (!objSDR["ContactCategoryID"].Equals(DBNull.Value))
-                    {
-                        ddlContactCategoryID.SelectedValue = objSDR["ContactCategoryID"].ToString();
                     }
                     if (!objSDR["MobileNo"].Equals(DBNull.Value))
                     {
@@ -499,6 +536,30 @@ public partial class MasterPanel_Contact_ContactAddEdit : System.Web.UI.Page
                     break;
                 }
             }
+
+            objSDR.Close();
+
+            #endregion
+
+            #region Get ContactCategory By ContactID
+
+            SqlCommand objCmdContactCategory = objConn.CreateCommand();
+            objCmdContactCategory.CommandType = CommandType.StoredProcedure;
+            objCmdContactCategory.CommandText = "PR_ContactWiseContactCategory_SelectByContactID";
+            objCmdContactCategory.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
+
+            objSDR = objCmdContactCategory.ExecuteReader();
+
+            if (objSDR.HasRows)
+            {
+                while (objSDR.Read())
+                {
+                    if (!objSDR["ContactCategoryID"].Equals(DBNull.Value))
+                        cblContactCategoryID.Items.FindByValue(objSDR["ContactCategoryID"].ToString()).Selected = true;
+                }
+            }
+
+            objConn.Close();
 
             #endregion
         }
