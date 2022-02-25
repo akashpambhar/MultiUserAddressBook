@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class MasterPanel_ContactCategory_ContactCategoryList : System.Web.UI.Page
+public partial class AdminPanel_Country_CountryList : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -18,15 +18,15 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
 
             if (Session["UserID"] != null)
             {
-                FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
+                FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
 
             #endregion
         }
     }
-    private void FillContactCategoryGridView(Int32 UserID)
+    private void FillCountryGridView(Int32 UserID)
     {
-        #region Get All Contact Categories By UserID
+        #region Get All Countries By UserID
 
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
@@ -36,14 +36,14 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_ContactCategory_SelectAllByUserID";
+            objCmd.CommandText = "PR_Country_SelectAllByUserID";
 
             objCmd.Parameters.AddWithValue("@UserID", UserID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
-            gvContactCategoryList.DataSource = objSDR;
-            gvContactCategoryList.DataBind();
+            gvCountryList.DataSource = objSDR;
+            gvCountryList.DataBind();
         }
         catch (Exception ex)
         {
@@ -57,24 +57,22 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
 
         #endregion
     }
-    protected void gvContactCategoryList_RowCommand(object sender, GridViewCommandEventArgs e)
+
+    protected void gvCountryList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         #region Handle Delete Action from GridView
 
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
-            if (Session["UserID"] != null)
-            {
-                FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
-            }
+            FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
         }
 
         #endregion
     }
-    private void DeleteRecord(Int32 ContactCategoryID)
+    private void DeleteRecord(Int32 CountryID)
     {
-        #region Delete ContactCategory By PK
+        #region Delete Country By PK
 
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
@@ -84,8 +82,8 @@ public partial class MasterPanel_ContactCategory_ContactCategoryList : System.We
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_ContactCategory_DeleteByPK";
-            objCmd.Parameters.AddWithValue("@ContactCategoryID", ContactCategoryID);
+            objCmd.CommandText = "PR_Country_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@CountryID", CountryID);
 
             objCmd.ExecuteNonQuery();
         }

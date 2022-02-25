@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
+public partial class AdminPanel_City_CityList : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -18,32 +18,34 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
+                FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
 
             #endregion
         }
     }
-    private void FillCountryGridView(Int32 UserID)
+    private void FillCityGridView(Int32 UserID)
     {
-        #region Get All Countries By UserID
-
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
+            #region Get All Cities By UserID
+
             if (objConn.State != ConnectionState.Open)
                 objConn.Open();
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_Country_SelectAllByUserID";
+            objCmd.CommandText = "PR_City_SelectAllByUserID";
 
             objCmd.Parameters.AddWithValue("@UserID", UserID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
-            gvCountryList.DataSource = objSDR;
-            gvCountryList.DataBind();
+            gvCityList.DataSource = objSDR;
+            gvCityList.DataBind();
+
+            #endregion
         }
         catch (Exception ex)
         {
@@ -54,25 +56,25 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
             if (objConn.State != ConnectionState.Closed)
                 objConn.Close();
         }
-
-        #endregion
     }
-
-    protected void gvCountryList_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void gvCityList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         #region Handle Delete Action from GridView
 
         if (e.CommandName == "DeleteRecord" && e.CommandArgument != null)
         {
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
-            FillCountryGridView(Convert.ToInt32(Session["UserID"].ToString()));
+            if (Session["UserID"] != null)
+            {
+                FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
+            }
         }
 
         #endregion
     }
-    private void DeleteRecord(Int32 CountryID)
+    private void DeleteRecord(Int32 CityID)
     {
-        #region Delete Country By PK
+        #region Delete City By PK
 
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
@@ -82,8 +84,8 @@ public partial class MasterPanel_Country_CountryList : System.Web.UI.Page
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_Country_DeleteByPK";
-            objCmd.Parameters.AddWithValue("@CountryID", CountryID);
+            objCmd.CommandText = "PR_City_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@CityID", CityID);
 
             objCmd.ExecuteNonQuery();
         }

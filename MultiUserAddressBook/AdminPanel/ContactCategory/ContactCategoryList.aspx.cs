@@ -8,7 +8,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class MasterPanel_City_CityList : System.Web.UI.Page
+public partial class AdminPanel_ContactCategory_ContactCategoryList : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -18,34 +18,32 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
+                FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
 
             #endregion
         }
     }
-    private void FillCityGridView(Int32 UserID)
+    private void FillContactCategoryGridView(Int32 UserID)
     {
+        #region Get All Contact Categories By UserID
+
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            #region Get All Cities By UserID
-
             if (objConn.State != ConnectionState.Open)
                 objConn.Open();
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_City_SelectAllByUserID";
+            objCmd.CommandText = "PR_ContactCategory_SelectAllByUserID";
 
             objCmd.Parameters.AddWithValue("@UserID", UserID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
-            gvCityList.DataSource = objSDR;
-            gvCityList.DataBind();
-
-            #endregion
+            gvContactCategoryList.DataSource = objSDR;
+            gvContactCategoryList.DataBind();
         }
         catch (Exception ex)
         {
@@ -56,8 +54,10 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
             if (objConn.State != ConnectionState.Closed)
                 objConn.Close();
         }
+
+        #endregion
     }
-    protected void gvCityList_RowCommand(object sender, GridViewCommandEventArgs e)
+    protected void gvContactCategoryList_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         #region Handle Delete Action from GridView
 
@@ -66,15 +66,15 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
             DeleteRecord(Convert.ToInt32(e.CommandArgument));
             if (Session["UserID"] != null)
             {
-                FillCityGridView(Convert.ToInt32(Session["UserID"].ToString()));
+                FillContactCategoryGridView(Convert.ToInt32(Session["UserID"].ToString()));
             }
         }
 
         #endregion
     }
-    private void DeleteRecord(Int32 CityID)
+    private void DeleteRecord(Int32 ContactCategoryID)
     {
-        #region Delete City By PK
+        #region Delete ContactCategory By PK
 
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
@@ -84,8 +84,8 @@ public partial class MasterPanel_City_CityList : System.Web.UI.Page
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_City_DeleteByPK";
-            objCmd.Parameters.AddWithValue("@CityID", CityID);
+            objCmd.CommandText = "PR_ContactCategory_DeleteByPK";
+            objCmd.Parameters.AddWithValue("@ContactCategoryID", ContactCategoryID);
 
             objCmd.ExecuteNonQuery();
         }

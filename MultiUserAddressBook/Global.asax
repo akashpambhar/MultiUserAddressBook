@@ -52,87 +52,87 @@
         //routes.MapPageRoute(
         //    "Route_Master_Default_Home",
         //    "AB/AdminPanel/Home",
-        //    "~/MasterPanel/Default.aspx");
+        //    "~/AdminPanel/Default.aspx");
 
         //Contact Routes        
         routes.MapPageRoute(
             "Route_Master_ContactList_Contact",
             "AB/AdminPanel/Contact",
-            "~/MasterPanel/Contact/ContactList.aspx");
+            "~/AdminPanel/Contact/ContactList.aspx");
 
         routes.MapPageRoute(
             "Route_Master_ContactAdd_Contact_Add",
             "AB/AdminPanel/Contact/Add",
-            "~/MasterPanel/Contact/ContactAddEdit.aspx");
+            "~/AdminPanel/Contact/ContactAddEdit.aspx");
 
         routes.MapPageRoute(
             "Route_Master_ContactAdd_Contact_Edit",
             "AB/AdminPanel/Contact/Edit/{ContactID}",
-            "~/MasterPanel/Contact/ContactAddEdit.aspx");
+            "~/AdminPanel/Contact/ContactAddEdit.aspx");
 
         //ContactCategory Routes        
         routes.MapPageRoute(
             "Route_Master_ContactCategoryList_ContactCategory",
             "AB/AdminPanel/ContactCategory",
-            "~/MasterPanel/ContactCategory/ContactCategoryList.aspx");
+            "~/AdminPanel/ContactCategory/ContactCategoryList.aspx");
 
         routes.MapPageRoute(
             "Route_Master_ContactCategoryAdd_ContactCategory_Add",
             "AB/AdminPanel/ContactCategory/Add",
-            "~/MasterPanel/ContactCategory/ContactCategoryAddEdit.aspx");
+            "~/AdminPanel/ContactCategory/ContactCategoryAddEdit.aspx");
 
         routes.MapPageRoute(
             "Route_Master_ContactCategoryAdd_ContactCategory_Edit",
             "AB/AdminPanel/ContactCategory/Edit/{ContactCategoryID}",
-            "~/MasterPanel/ContactCategory/ContactCategoryAddEdit.aspx");
+            "~/AdminPanel/ContactCategory/ContactCategoryAddEdit.aspx");
         
         //City Routes        
         routes.MapPageRoute(
             "Route_Master_CityList_City",
             "AB/AdminPanel/City",
-            "~/MasterPanel/City/CityList.aspx");
+            "~/AdminPanel/City/CityList.aspx");
 
         routes.MapPageRoute(
             "Route_Master_CityAdd_City_Add",
             "AB/AdminPanel/City/Add",
-            "~/MasterPanel/City/CityAddEdit.aspx");
+            "~/AdminPanel/City/CityAddEdit.aspx");
 
         routes.MapPageRoute(
             "Route_Master_CityAdd_City_Edit",
             "AB/AdminPanel/City/Edit/{CityID}",
-            "~/MasterPanel/City/CityAddEdit.aspx");
+            "~/AdminPanel/City/CityAddEdit.aspx");
 
         //State Routes
         routes.MapPageRoute(
             "Route_Master_StateList_State",
             "AB/AdminPanel/State",
-            "~/MasterPanel/State/StateList.aspx");
+            "~/AdminPanel/State/StateList.aspx");
 
         routes.MapPageRoute(
             "Route_Master_StateAdd_State_Add",
             "AB/AdminPanel/State/Add",
-            "~/MasterPanel/State/StateAddEdit.aspx");
+            "~/AdminPanel/State/StateAddEdit.aspx");
 
         routes.MapPageRoute(
             "Route_Master_StateAdd_State_Edit",
             "AB/AdminPanel/State/Edit/{StateID}",
-            "~/MasterPanel/State/StateAddEdit.aspx");
+            "~/AdminPanel/State/StateAddEdit.aspx");
 
         //Country Routes
         routes.MapPageRoute(
             "Route_Master_CountryList_Country",
             "AB/AdminPanel/Country",
-            "~/MasterPanel/Country/CountryList.aspx");
+            "~/AdminPanel/Country/CountryList.aspx");
 
         routes.MapPageRoute(
             "Route_Master_CountryAdd_Country_Add",
             "AB/AdminPanel/Country/Add",
-            "~/MasterPanel/Country/CountryAddEdit.aspx");
+            "~/AdminPanel/Country/CountryAddEdit.aspx");
 
         routes.MapPageRoute(
             "Route_Master_CountryAdd_Country_Edit",
             "AB/AdminPanel/Country/Edit/{CountryID}",
-            "~/MasterPanel/Country/CountryAddEdit.aspx");
+            "~/AdminPanel/Country/CountryAddEdit.aspx");
     }
        
 </script>

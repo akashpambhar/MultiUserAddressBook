@@ -9,7 +9,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
+public partial class AdminPanel_State_StateAddEdit : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -19,7 +19,8 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                if (Page.RouteData.Values["CountryID"] != null)
+                FillCountryDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+                if (Page.RouteData.Values["StateID"] != null)
                 {
                     LoadControls();
                 }
@@ -28,18 +29,60 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
             #endregion
         }
     }
+    private void FillCountryDropDownList(Int32 UserID)
+    {
+        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
+        try
+        {
+            #region Get All Countries By UserID
+
+            if (objConn.State != ConnectionState.Open)
+                objConn.Open();
+
+            SqlCommand objCmd = objConn.CreateCommand();
+            objCmd.CommandType = CommandType.StoredProcedure;
+            objCmd.CommandText = "PR_Country_SelectAllByUserID";
+
+            if (Session["UserID"] != null)
+            {
+                objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString()));
+            }
+
+            SqlDataReader objSDR = objCmd.ExecuteReader();
+            ddlCountryID.DataSource = objSDR;
+            ddlCountryID.DataTextField = "CountryName";
+            ddlCountryID.DataValueField = "CountryID";
+            ddlCountryID.DataBind();
+
+            #endregion
+        }
+        catch (Exception ex)
+        {
+            lblErrorMessage.Text = ex.Message.ToString();
+        }
+        finally
+        {
+            if (objConn.State != ConnectionState.Closed)
+                objConn.Close();
+        }
+
+        ddlCountryID.Items.Insert(0, new ListItem("Select Country...", "-1"));
+    }
     protected void btnSave_Click(object sender, EventArgs e)
     {
         #region Server Side Validation
 
         String strErrorMessage = "";
 
-        if (txtCountryName.Text.Trim() == "")
+        if (txtStateName.Text.Trim() == "")
         {
-            strErrorMessage += "Enter Country Name <br/>";
+            strErrorMessage += "Enter State Name<br/>";
         }
-
-        if (strErrorMessage != "")
+        if (ddlCountryID.SelectedIndex == 0)
+        {
+            strErrorMessage += "Select Country<br/>";
+        }
+        if (strErrorMessage.Trim() != "")
         {
             lblErrorMessage.Text = strErrorMessage;
             return;
@@ -49,23 +92,23 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
         #region Local Variables
 
-        SqlString strCountryName = SqlString.Null;
-        SqlString strCountryCode = SqlString.Null;
+        SqlString strStateName = SqlString.Null;
+        SqlInt32 strCountryID = SqlInt32.Null;
 
         #endregion Local Variables
 
         #region Gather Information
 
-        if (txtCountryName.Text.Trim() != "")
+        if (ddlCountryID.SelectedIndex > 0)
         {
-            strCountryName = txtCountryName.Text.Trim();
+            strCountryID = Convert.ToInt32(ddlCountryID.SelectedValue);
         }
-        if (txtCountryCode.Text.Trim() != "")
+        if (txtStateName.Text.Trim() != "")
         {
-            strCountryCode = txtCountryCode.Text.Trim();
+            strStateName = txtStateName.Text.Trim();
         }
 
-        #endregion
+        #endregion Gather Information
 
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
@@ -82,21 +125,21 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
             #region Common Parameters to pass
 
-            objCmd.Parameters.AddWithValue("@CountryName", strCountryName);
-            objCmd.Parameters.AddWithValue("@CountryCode", strCountryCode);
+            objCmd.Parameters.AddWithValue("@StateName", strStateName);
+            objCmd.Parameters.AddWithValue("@CountryID", strCountryID);
 
             #endregion
 
-            #region Check and Perform Insert or Update Country
+            #region Check and Perform Insert or Update State
 
-            if (Page.RouteData.Values["CountryID"] != null)
+            if (Page.RouteData.Values["StateID"] != null)
             {
-                objCmd.CommandText = "PR_Country_UpdateByPK";
-                objCmd.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
+                objCmd.CommandText = "PR_State_UpdateByPK";
+                objCmd.Parameters.AddWithValue("@StateID", Page.RouteData.Values["StateID"]);
             }
             else
             {
-                objCmd.CommandText = "PR_Country_Insert";
+                objCmd.CommandText = "PR_State_Insert";
                 if (Session["UserID"] != null)
                 {
                     objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString().Trim()));
@@ -116,7 +159,7 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
             if (sqlEx.Number == 2627)
             {
-                lblErrorMessage.Text = "You have already created a Country with same name";
+                lblErrorMessage.Text = "You have already created a State with same name with same Country";
                 clearFields();
             }
             else
@@ -134,64 +177,64 @@ public partial class MasterPanel_Country_CountryAddEdit : System.Web.UI.Page
 
         #region Clear Fields or Redirect
 
-        if (Page.RouteData.Values["CountryID"] == null)
+        if (Page.RouteData.Values["StateID"] == null)
         {
             clearFields();
         }
         else
         {
-            Response.Redirect("~/AB/AdminPanel/Country");
+            Response.Redirect("~/AB/AdminPanel/State");
         }
 
         #endregion
     }
     private void clearFields()
     {
-        txtCountryName.Text = "";
-        txtCountryCode.Text = "";
+        ddlCountryID.SelectedIndex = 0;
+        txtStateName.Text = "";
     }
     protected void btnCancel_Click(object sender, EventArgs e)
     {
-        Response.Redirect("~/AB/AdminPanel/Country");
+        Response.Redirect("~/AB/AdminPanel/State");
     }
     private void LoadControls()
     {
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
-            #region Get Country By PK
+            #region Get State By PK
 
             if (objConn.State != ConnectionState.Open)
                 objConn.Open();
 
             SqlCommand objCmd = objConn.CreateCommand();
             objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_Country_SelectByPK";
+            objCmd.CommandText = "PR_State_SelectByPK";
 
-            objCmd.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
+            objCmd.Parameters.AddWithValue("@StateID", Page.RouteData.Values["StateID"]);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
             #endregion
 
-            #region Set obtained values to controls
+            #region Set obtained values to controls and Close connection
 
             if (objSDR.HasRows)
             {
                 while (objSDR.Read())
                 {
-                    if (!objSDR["CountryName"].Equals(DBNull.Value))
+                    if (!objSDR["StateName"].Equals(DBNull.Value))
                     {
-                        txtCountryName.Text = objSDR["CountryName"].ToString();
+                        txtStateName.Text = objSDR["StateName"].ToString();
                     }
-                    if (!objSDR["CountryCode"].Equals(DBNull.Value))
+                    if (!objSDR["CountryID"].Equals(DBNull.Value))
                     {
-                        txtCountryCode.Text = objSDR["CountryCode"].ToString();
+                        ddlCountryID.SelectedValue = objSDR["CountryID"].ToString();
                     }
                     break;
                 }
             }
-
+            
             #endregion
         }
         catch (Exception ex)
