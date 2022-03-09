@@ -21,7 +21,6 @@
             <div class="col-md-12">
                 <asp:GridView ID="gvContactList" runat="server" AutoGenerateColumns="false" CssClass="table table-hover table-bordered" OnRowCommand="gvContactList_RowCommand">
                     <Columns>
-                        <asp:BoundField DataField="ContactID" HeaderText="ID" />
                         <asp:BoundField DataField="ContactName" HeaderText="Name" />
                         <asp:BoundField DataField="ContactCategoryName" HeaderText="Contact Category" />
                         <asp:BoundField DataField="MobileNo" HeaderText="Mobile No." />

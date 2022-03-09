@@ -21,7 +21,6 @@
             <div class="col-md-12">
                 <asp:GridView ID="gvContactCategoryList" runat="server" AutoGenerateColumns="false" CssClass="table table-hover table-bordered" OnRowCommand="gvContactCategoryList_RowCommand">
                     <Columns>
-                        <asp:BoundField DataField="ContactCategoryID" HeaderText="ID" />
                         <asp:BoundField DataField="ContactCategoryName" HeaderText="Contact Category Name" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>

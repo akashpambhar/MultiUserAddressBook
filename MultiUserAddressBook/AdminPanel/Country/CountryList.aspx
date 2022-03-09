@@ -21,7 +21,6 @@
             <div class="col-md-12">
                 <asp:GridView ID="gvCountryList" runat="server" AutoGenerateColumns="false" CssClass="table table-hover table-bordered" OnRowCommand="gvCountryList_RowCommand">
                     <Columns>
-                        <asp:BoundField DataField="CountryID" HeaderText="ID" />
                         <asp:BoundField DataField="CountryName" HeaderText="Country Name" />
                         <asp:BoundField DataField="CountryCode" HeaderText="Code" />
                         <asp:TemplateField HeaderText="Actions">
