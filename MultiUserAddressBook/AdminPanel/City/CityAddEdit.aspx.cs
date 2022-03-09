@@ -190,6 +190,8 @@ public partial class AdminPanel_City_CityAddEdit : System.Web.UI.Page
     }
     private void LoadControls(String CityID)
     {
+        CityID = EncryptDecrypt.Base64Decode(CityID);
+
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {

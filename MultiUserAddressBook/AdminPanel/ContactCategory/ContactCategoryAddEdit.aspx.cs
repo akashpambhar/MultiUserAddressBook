@@ -148,6 +148,8 @@ public partial class AdminPanel_ContactCategory_ContactCategoryAddEdit : System.
     }
     private void LoadControls()
     {
+        string ContactCategoryID = EncryptDecrypt.Base64Decode(Page.RouteData.Values["ContactCategoryID"].ToString());
+
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -160,7 +162,7 @@ public partial class AdminPanel_ContactCategory_ContactCategoryAddEdit : System.
             objCmd.CommandType = CommandType.StoredProcedure;
             objCmd.CommandText = "PR_ContactCategory_SelectByPK";
 
-            objCmd.Parameters.AddWithValue("@ContactCategoryID", Page.RouteData.Values["ContactCategoryID"]);
+            objCmd.Parameters.AddWithValue("@ContactCategoryID", ContactCategoryID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 

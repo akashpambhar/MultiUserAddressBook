@@ -21,13 +21,12 @@
             <div class="col-md-12">
                 <asp:GridView ID="gvCityList" runat="server" AutoGenerateColumns="false" CssClass="table table-hover table-bordered" OnRowCommand="gvCityList_RowCommand">
                     <Columns>
-                        <asp:BoundField DataField="CityID" HeaderText="ID" />
                         <asp:BoundField DataField="CityName" HeaderText="City Name" />
                         <asp:BoundField DataField="Pincode" HeaderText="Pincode" />
                         <asp:BoundField DataField="StateName" HeaderText="State Name" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
-                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/City/Edit/" + Eval("CityID").ToString() %>' CssClass="btn btn-warning" runat="server" />
+                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/City/Edit/" + EncryptDecrypt.Base64Encode(Eval("CityID").ToString()) %>' CssClass="btn btn-warning" runat="server" />
                                 <asp:Button ID="btnDelete" Text="Delete" CommandName="DeleteRecord" CommandArgument='<%# Eval("CityID") %>' CssClass="btn btn-danger" runat="server" />
                             </ItemTemplate>
                         </asp:TemplateField>

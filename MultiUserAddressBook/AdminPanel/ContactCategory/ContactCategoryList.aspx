@@ -25,7 +25,7 @@
                         <asp:BoundField DataField="ContactCategoryName" HeaderText="Contact Category Name" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
-                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/ContactCategory/Edit/" + Eval("ContactCategoryID").ToString() %>' CssClass="btn btn-warning" runat="server" />
+                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/ContactCategory/Edit/" + EncryptDecrypt.Base64Encode(Eval("ContactCategoryID").ToString()) %>' CssClass="btn btn-warning" runat="server" />
                                 <asp:Button ID="btnDelete" Text="Delete" CommandName="DeleteRecord" CommandArgument='<%# Eval("ContactCategoryID") %>' CssClass="btn btn-danger" runat="server" />
                             </ItemTemplate>
                         </asp:TemplateField>

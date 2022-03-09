@@ -160,6 +160,8 @@ public partial class AdminPanel_State_StateAddEdit : System.Web.UI.Page
     }
     private void LoadControls()
     {
+        string StateID = EncryptDecrypt.Base64Decode(Page.RouteData.Values["StateID"].ToString());
+
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -172,7 +174,7 @@ public partial class AdminPanel_State_StateAddEdit : System.Web.UI.Page
             objCmd.CommandType = CommandType.StoredProcedure;
             objCmd.CommandText = "PR_State_SelectByPK";
 
-            objCmd.Parameters.AddWithValue("@StateID", Page.RouteData.Values["StateID"]);
+            objCmd.Parameters.AddWithValue("@StateID", StateID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 

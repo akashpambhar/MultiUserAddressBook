@@ -31,7 +31,7 @@
                         <asp:BoundField DataField="CountryName" HeaderText="Country" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
-                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/Contact/Edit/" + Eval("ContactID").ToString() %>' CssClass="btn btn-warning" runat="server" />
+                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/Contact/Edit/" + EncryptDecrypt.Base64Encode(Eval("ContactID").ToString()) %>' CssClass="btn btn-warning" runat="server" />
                                 <asp:Button ID="btnDelete" Text="Delete" CommandName="DeleteRecord" CommandArgument='<%# Eval("ContactID") %>' CssClass="btn btn-danger" runat="server" />
                             </ItemTemplate>
                         </asp:TemplateField>

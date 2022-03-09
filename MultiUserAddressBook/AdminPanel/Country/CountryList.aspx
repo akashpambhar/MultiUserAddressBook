@@ -26,7 +26,7 @@
                         <asp:BoundField DataField="CountryCode" HeaderText="Code" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
-                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/Country/Edit/" + Eval("CountryID").ToString() %>' CssClass="btn btn-warning" runat="server" />
+                                <asp:HyperLink ID="hlEdit" Text="Edit" NavigateUrl='<%# "~/AB/AdminPanel/Country/Edit/" + EncryptDecrypt.Base64Encode(Eval("CountryID").ToString()) %>' CssClass="btn btn-warning" runat="server" />
                                 <asp:Button ID="btnDelete" Text="Delete" CommandName="DeleteRecord" CommandArgument='<%# Eval("CountryID") %>' CssClass="btn btn-danger" runat="server" />
                             </ItemTemplate>
                         </asp:TemplateField>

@@ -156,6 +156,8 @@ public partial class AdminPanel_Country_CountryAddEdit : System.Web.UI.Page
     }
     private void LoadControls()
     {
+        string CountryID = EncryptDecrypt.Base64Decode(Page.RouteData.Values["CountryID"].ToString());
+
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -168,7 +170,7 @@ public partial class AdminPanel_Country_CountryAddEdit : System.Web.UI.Page
             objCmd.CommandType = CommandType.StoredProcedure;
             objCmd.CommandText = "PR_Country_SelectByPK";
 
-            objCmd.Parameters.AddWithValue("@CountryID", Page.RouteData.Values["CountryID"]);
+            objCmd.Parameters.AddWithValue("@CountryID", CountryID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 

@@ -333,6 +333,8 @@ public partial class AdminPanel_Contact_ContactAddEdit : System.Web.UI.Page
     }
     private void LoadControls(Int32 UserID)
     {
+        string ContactID = EncryptDecrypt.Base64Decode(Page.RouteData.Values["ContactID"].ToString());
+
         SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
         try
         {
@@ -345,7 +347,7 @@ public partial class AdminPanel_Contact_ContactAddEdit : System.Web.UI.Page
             objCmd.CommandType = CommandType.StoredProcedure;
             objCmd.CommandText = "PR_Contact_SelectByPK";
 
-            objCmd.Parameters.AddWithValue("@ContactID", Page.RouteData.Values["ContactID"]);
+            objCmd.Parameters.AddWithValue("@ContactID", ContactID);
 
             SqlDataReader objSDR = objCmd.ExecuteReader();
 
