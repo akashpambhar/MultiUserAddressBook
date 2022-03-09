@@ -19,7 +19,7 @@ public partial class AdminPanel_State_StateAddEdit : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                FillCountryDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+                CommonFillDropDown.FillCountryDropDownList(ddlCountryID, lblErrorMessage, Convert.ToInt32(Session["UserID"].ToString()));
                 if (Page.RouteData.Values["StateID"] != null)
                 {
                     LoadControls();
@@ -28,45 +28,6 @@ public partial class AdminPanel_State_StateAddEdit : System.Web.UI.Page
 
             #endregion
         }
-    }
-    private void FillCountryDropDownList(Int32 UserID)
-    {
-        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        try
-        {
-            #region Get All Countries By UserID
-
-            if (objConn.State != ConnectionState.Open)
-                objConn.Open();
-
-            SqlCommand objCmd = objConn.CreateCommand();
-            objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_Country_SelectAllByUserID";
-
-            if (Session["UserID"] != null)
-            {
-                objCmd.Parameters.AddWithValue("@UserID", Convert.ToInt32(Session["UserID"].ToString()));
-            }
-
-            SqlDataReader objSDR = objCmd.ExecuteReader();
-            ddlCountryID.DataSource = objSDR;
-            ddlCountryID.DataTextField = "CountryName";
-            ddlCountryID.DataValueField = "CountryID";
-            ddlCountryID.DataBind();
-
-            #endregion
-        }
-        catch (Exception ex)
-        {
-            lblErrorMessage.Text = ex.Message.ToString();
-        }
-        finally
-        {
-            if (objConn.State != ConnectionState.Closed)
-                objConn.Close();
-        }
-
-        ddlCountryID.Items.Insert(0, new ListItem("Select Country...", "-1"));
     }
     protected void btnSave_Click(object sender, EventArgs e)
     {

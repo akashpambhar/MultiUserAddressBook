@@ -19,96 +19,22 @@ public partial class AdminPanel_City_CityAddEdit : System.Web.UI.Page
 
             if (Session["UserID"] != null)
             {
-                FillCountryDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+                CommonFillDropDown.FillCountryDropDownList(ddlCountryID, lblErrorMessage, Convert.ToInt32(Session["UserID"].ToString()));
                 if (Page.RouteData.Values["CityID"] != null)
                 {
                     LoadControls(Page.RouteData.Values["CityID"].ToString());
-                    FillStateDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+                    CommonFillDropDown.FillStateDropDownList(ddlStateID, lblErrorMessage, Convert.ToInt32(Session["UserID"].ToString()), Convert.ToInt32(ddlCountryID.SelectedValue));
                 }
             }
 
             #endregion
         }
     }
-    private void FillCountryDropDownList(Int32 UserID)
-    {
-        #region Get All Countries By UserID
-
-        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        try
-        {
-            if (objConn.State != ConnectionState.Open)
-                objConn.Open();
-
-            SqlCommand objCmd = objConn.CreateCommand();
-            objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_Country_SelectAllByUserID";
-
-            objCmd.Parameters.AddWithValue("@UserID", UserID);
-
-            SqlDataReader objSDR = objCmd.ExecuteReader();
-
-            ddlCountryID.DataSource = objSDR;
-            ddlCountryID.DataTextField = "CountryName";
-            ddlCountryID.DataValueField = "CountryID";
-            ddlCountryID.DataBind();
-        }
-        catch (Exception ex)
-        {
-            lblErrorMessage.Text = ex.Message.ToString();
-        }
-        finally
-        {
-            if (objConn.State != ConnectionState.Closed)
-                objConn.Close();
-        }
-
-        #endregion
-
-        ddlCountryID.Items.Insert(0, new ListItem("Select Country...", "-1"));
-    }
-    private void FillStateDropDownList(Int32 UserID)
-    {
-        #region Get All States By UserID
-
-        SqlConnection objConn = new SqlConnection(ConfigurationManager.ConnectionStrings["AddressBookConnectionString"].ConnectionString);
-        try
-        {
-            if (objConn.State != ConnectionState.Open)
-                objConn.Open();
-
-            SqlCommand objCmd = objConn.CreateCommand();
-            objCmd.CommandType = CommandType.StoredProcedure;
-            objCmd.CommandText = "PR_State_SelectDropDownListByUserID";
-
-            objCmd.Parameters.AddWithValue("@CountryID", ddlCountryID.SelectedValue);
-            objCmd.Parameters.AddWithValue("@UserID", UserID);
-
-            SqlDataReader objSDR = objCmd.ExecuteReader();
-            ddlStateID.DataSource = objSDR;
-            ddlStateID.DataTextField = "StateName";
-            ddlStateID.DataValueField = "StateID";
-            ddlStateID.DataBind();
-        }
-        catch (Exception ex)
-        {
-            lblErrorMessage.Text = ex.Message.ToString();
-        }
-        finally
-        {
-            if (objConn.State != ConnectionState.Closed)
-                objConn.Close();
-        }
-
-        #endregion
-
-        ddlStateID.Items.Insert(0, new ListItem("Select State...", "-1"));
-    }
     protected void ddlCountryID_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (Session["UserID"] != null)
         {
-            FillStateDropDownList(Convert.ToInt32(Session["UserID"].ToString()));
+            CommonFillDropDown.FillStateDropDownList(ddlStateID, lblErrorMessage, Convert.ToInt32(Session["UserID"].ToString()), Convert.ToInt32(ddlCountryID.SelectedValue));
         }
     }
     protected void btnSave_Click(object sender, EventArgs e)
